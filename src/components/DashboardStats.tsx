@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Video, Clock, CheckCircle, Users } from "lucide-react";
+import { Video, Clock, CheckCircle, Users, Gift, DollarSign } from "lucide-react";
 
 export const DashboardStats = () => {
   const stats = [
@@ -12,8 +12,16 @@ export const DashboardStats = () => {
       bgColor: "bg-green-50"
     },
     {
-      label: "Scheduled",
+      label: "Gifts Delivered",
       value: "23",
+      change: "$340 total value",
+      icon: Gift,
+      color: "text-purple-600", 
+      bgColor: "bg-purple-50"
+    },
+    {
+      label: "Scheduled",
+      value: "18",
       change: "Next 30 days",
       icon: Clock,
       color: "text-blue-600", 
@@ -24,14 +32,6 @@ export const DashboardStats = () => {
       value: "156",
       change: "+8 this month",
       icon: Users,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50"
-    },
-    {
-      label: "Templates Used",
-      value: "12",
-      change: "Most popular: Birthday",
-      icon: Video,
       color: "text-orange-600",
       bgColor: "bg-orange-50"
     }

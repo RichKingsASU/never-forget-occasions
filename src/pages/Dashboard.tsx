@@ -3,7 +3,8 @@ import { DashboardStats } from "@/components/DashboardStats";
 import { ContactCard } from "@/components/ContactCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Gift, Calendar, Bell } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Gift, Calendar, Bell, Package } from "lucide-react";
 
 export const Dashboard = () => {
   const upcomingOccasions = [
@@ -12,21 +13,26 @@ export const Dashboard = () => {
       event: "Birthday",
       date: "March 15",
       daysUntil: 3,
-      status: "scheduled"
+      status: "scheduled",
+      hasGift: true,
+      giftName: "Starbucks Gift Card"
     },
     {
       name: "Mom",
       event: "Mother's Day", 
       date: "May 12",
       daysUntil: 45,
-      status: "pending"
+      status: "pending",
+      hasGift: false
     },
     {
       name: "John & Lisa",
       event: "Anniversary",
       date: "April 8",
       daysUntil: 28,
-      status: "scheduled"
+      status: "scheduled",
+      hasGift: true,
+      giftName: "Rose Bouquet"
     }
   ];
 
@@ -40,7 +46,11 @@ export const Dashboard = () => {
         date: "March 15",
         daysUntil: 3
       },
-      avatar: ""
+      avatar: "",
+      giftPreferences: ["Coffee", "Books", "Tech"],
+      recentGifts: [
+        { name: "Amazon Gift Card", status: "delivered" as const, date: "Feb 14" }
+      ]
     },
     {
       name: "Michael Rodriguez",
@@ -52,7 +62,9 @@ export const Dashboard = () => {
         date: "March 22",
         daysUntil: 10
       },
-      avatar: ""
+      avatar: "",
+      giftPreferences: ["Food", "Wine", "Experience"],
+      recentGifts: []
     },
     {
       name: "Emma Thompson",
@@ -63,7 +75,11 @@ export const Dashboard = () => {
         date: "May 15",
         daysUntil: 48
       },
-      avatar: ""
+      avatar: "",
+      giftPreferences: ["Jewelry", "Flowers", "Spa"],
+      recentGifts: [
+        { name: "Pandora Gift Card", status: "pending" as const, date: "Mar 1" }
+      ]
     }
   ];
 
@@ -77,7 +93,7 @@ export const Dashboard = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back! 👋</h1>
-              <p className="text-muted-foreground">You have 5 upcoming occasions this month</p>
+              <p className="text-muted-foreground">You have 5 upcoming occasions with 3 gifts scheduled</p>
             </div>
             <div className="flex gap-3">
               <Button variant="outline">
@@ -86,7 +102,7 @@ export const Dashboard = () => {
               </Button>
               <Button variant="gradient">
                 <Plus className="w-4 h-4" />
-                Add Contact
+                Send Greeting + Gift
               </Button>
             </div>
           </div>
@@ -114,19 +130,32 @@ export const Dashboard = () => {
                         <div>
                           <h3 className="font-medium text-foreground">{occasion.name}</h3>
                           <p className="text-sm text-muted-foreground">{occasion.event} • {occasion.date}</p>
+                          {occasion.hasGift && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <Package className="w-3 h-3 text-green-600" />
+                              <span className="text-xs text-green-600">{occasion.giftName}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-3">
                         <div className="text-right">
                           <p className="text-sm font-medium text-foreground">{occasion.daysUntil} days</p>
-                          <p className={`text-xs px-2 py-1 rounded-full ${
-                            occasion.status === 'scheduled' 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {occasion.status}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <Badge className={`text-xs ${
+                              occasion.status === 'scheduled' 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-yellow-100 text-yellow-700'
+                            }`}>
+                              {occasion.status}
+                            </Badge>
+                            {occasion.hasGift && (
+                              <Badge className="text-xs bg-purple-100 text-purple-700">
+                                Gift
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         <Button variant="outline" size="sm">
                           <Bell className="w-4 h-4" />

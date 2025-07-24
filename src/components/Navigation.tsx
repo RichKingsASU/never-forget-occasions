@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Heart, Video, Users, Calendar, Settings, LogOut } from "lucide-react";
+import { Heart, Video, Users, Calendar, Settings, LogOut, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface NavigationProps {
@@ -12,6 +12,7 @@ export const Navigation = ({ currentPage = "dashboard" }: NavigationProps) => {
     { id: "contacts", label: "Contacts", icon: Users },
     { id: "occasions", label: "Occasions", icon: Calendar },
     { id: "templates", label: "Templates", icon: Video },
+    { id: "gifts", label: "Gift Catalog", icon: Gift },
     { id: "settings", label: "Settings", icon: Settings },
   ];
 

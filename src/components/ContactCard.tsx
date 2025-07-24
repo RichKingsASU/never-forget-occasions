@@ -1,7 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Mail, Phone, Edit, Gift } from "lucide-react";
+import { Calendar, Mail, Phone, Edit, Gift, Heart, Package, CheckCircle, Clock } from "lucide-react";
 
 interface ContactCardProps {
   name: string;
@@ -14,6 +15,12 @@ interface ContactCardProps {
     daysUntil: number;
   };
   avatar?: string;
+  giftPreferences?: string[];
+  recentGifts?: {
+    name: string;
+    status: 'delivered' | 'pending' | 'scheduled';
+    date: string;
+  }[];
 }
 
 export const ContactCard = ({ 
@@ -22,7 +29,9 @@ export const ContactCard = ({
   phone, 
   relationship, 
   nextOccasion, 
-  avatar 
+  avatar,
+  giftPreferences = [],
+  recentGifts = []
 }: ContactCardProps) => {
   const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
   
@@ -62,6 +71,48 @@ export const ContactCard = ({
         )}
       </div>
 
+      {/* Gift Preferences */}
+      {giftPreferences.length > 0 && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Heart className="w-4 h-4 text-pink-500" />
+            <span className="text-sm font-medium">Loves</span>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {giftPreferences.slice(0, 3).map((pref, index) => (
+              <Badge key={index} variant="secondary" className="text-xs">
+                {pref}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recent Gifts */}
+      {recentGifts.length > 0 && (
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Package className="w-4 h-4 text-blue-500" />
+            <span className="text-sm font-medium">Recent Gifts</span>
+          </div>
+          <div className="space-y-1">
+            {recentGifts.slice(0, 2).map((gift, index) => (
+              <div key={index} className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">{gift.name}</span>
+                <div className="flex items-center gap-1">
+                  {gift.status === 'delivered' ? (
+                    <CheckCircle className="w-3 h-3 text-green-500" />
+                  ) : (
+                    <Clock className="w-3 h-3 text-yellow-500" />
+                  )}
+                  <span className="text-muted-foreground">{gift.date}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {nextOccasion && (
         <div className="p-3 bg-gradient-secondary rounded-lg mb-4">
           <div className="flex items-center gap-2 mb-1">
@@ -77,7 +128,8 @@ export const ContactCard = ({
 
       <div className="flex gap-2">
         <Button variant="gradient" size="sm" className="flex-1">
-          Send Greeting
+          <Gift className="w-4 h-4" />
+          Send Greeting + Gift
         </Button>
         <Button variant="outline" size="sm">
           Add Occasion

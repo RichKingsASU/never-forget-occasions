@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Video, Users, Calendar, Star, Check, Sparkles, Zap, Shield } from "lucide-react";
+import { Heart, Video, Users, Calendar, Star, Check, Sparkles, Zap, Shield, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-image.jpg";
 
@@ -12,6 +12,11 @@ const Index = () => {
       description: "Generate personalized video greetings with cutting-edge AI technology"
     },
     {
+      icon: Gift,
+      title: "Thoughtful Gifts",
+      description: "Add curated gifts like gift cards, flowers, and treats to any greeting"
+    },
+    {
       icon: Calendar,
       title: "Smart Scheduling",
       description: "Never miss another birthday or anniversary with automated reminders"
@@ -19,17 +24,12 @@ const Index = () => {
     {
       icon: Users,
       title: "Contact Management",
-      description: "Organize friends and family with their special dates and preferences"
+      description: "Organize friends and family with their special dates and gift preferences"
     },
     {
       icon: Zap,
       title: "Instant Delivery",
-      description: "Send videos via email, SMS, or WhatsApp at the perfect moment"
-    },
-    {
-      icon: Video,
-      title: "Template Gallery",
-      description: "Choose from hundreds of professionally designed video templates"
+      description: "Send videos and gifts via email, SMS, or WhatsApp at the perfect moment"
     },
     {
       icon: Shield,
@@ -46,7 +46,7 @@ const Index = () => {
       description: "Perfect for getting started",
       features: [
         "5 videos per month",
-        "Basic templates",
+        "Basic templates", 
         "Email delivery",
         "Contact management"
       ],
@@ -61,8 +61,9 @@ const Index = () => {
       features: [
         "Unlimited videos",
         "Premium templates",
-        "SMS & WhatsApp delivery",
+        "SMS & WhatsApp delivery", 
         "Advanced scheduling",
+        "Gift catalog access",
         "Custom branding",
         "Priority support"
       ],
@@ -78,8 +79,8 @@ const Index = () => {
         "Everything in Pro",
         "Up to 5 family accounts",
         "Shared contact lists",
-        "Family calendar view",
-        "Bulk scheduling",
+        "Family calendar view", 
+        "Bulk gift scheduling",
         "Admin controls"
       ],
       cta: "Start Free Trial",
@@ -131,7 +132,7 @@ const Index = () => {
                 </span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-lg">
-                Automate personalized AI-generated video greetings for birthdays, anniversaries, and special occasions. Stay connected with zero effort.
+                Automate personalized AI-generated video greetings with thoughtful gifts for birthdays, anniversaries, and special occasions. Stay connected with zero effort.
               </p>
             </div>
             
@@ -177,7 +178,7 @@ const Index = () => {
               Everything you need to stay connected
             </h2>
             <p className="text-xl text-muted-foreground">
-              Powerful features that make remembering special moments effortless
+              Powerful features that make remembering special moments effortless, now with thoughtful gifts
             </p>
           </div>
           
@@ -270,7 +271,7 @@ const Index = () => {
             </span>
           </div>
           <p className="text-muted-foreground mb-8">
-            Making every special moment memorable with AI-powered video greetings
+            Making every special moment memorable with AI-powered video greetings and thoughtful gifts
           </p>
           <div className="flex justify-center gap-8 text-sm text-muted-foreground">
             <a href="#" className="hover:text-foreground transition-smooth">Privacy</a>
