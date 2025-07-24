@@ -25,9 +25,9 @@ export const Navigation = ({ currentPage = "dashboard" }: NavigationProps) => {
           </div>
           <div>
             <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Never Forget AI
+              Never Forget Occasions
             </h1>
-            <p className="text-xs text-muted-foreground">Stay connected</p>
+            <p className="text-xs text-muted-foreground">Celebrate every moment</p>
           </div>
         </div>
 

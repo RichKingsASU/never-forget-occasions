@@ -98,7 +98,7 @@ const Index = () => {
               <Heart className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Never Forget AI
+              Never Forget Occasions
             </span>
           </div>
           
@@ -132,7 +132,7 @@ const Index = () => {
                 </span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-lg">
-                Automate personalized AI-generated video greetings with thoughtful gifts for birthdays, anniversaries, and special occasions. Stay connected with zero effort.
+                Automate personalized AI-generated video greetings with thoughtful gifts for birthdays, anniversaries, and special occasions. Never miss an important date again!
               </p>
             </div>
             
@@ -175,10 +175,10 @@ const Index = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-foreground mb-4">
-              Everything you need to stay connected
+              Everything you need to celebrate every occasion
             </h2>
             <p className="text-xl text-muted-foreground">
-              Powerful features that make remembering special moments effortless, now with thoughtful gifts
+              Powerful features that make remembering special moments effortless, with thoughtful gifts included
             </p>
           </div>
           
@@ -267,11 +267,11 @@ const Index = () => {
               <Heart className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Never Forget AI
+              Never Forget Occasions
             </span>
           </div>
           <p className="text-muted-foreground mb-8">
-            Making every special moment memorable with AI-powered video greetings and thoughtful gifts
+            Making every special occasion memorable with AI-powered video greetings and thoughtful gifts
           </p>
           <div className="flex justify-center gap-8 text-sm text-muted-foreground">
             <a href="#" className="hover:text-foreground transition-smooth">Privacy</a>

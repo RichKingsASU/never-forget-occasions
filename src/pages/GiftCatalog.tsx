@@ -103,7 +103,7 @@ export const GiftCatalog = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-foreground mb-2">Gift Catalog 🎁</h1>
-              <p className="text-muted-foreground">Add thoughtful gifts to your video greetings</p>
+              <p className="text-muted-foreground">Add thoughtful gifts to make every occasion special</p>
             </div>
             <Button variant="gradient">
               <Gift className="w-4 h-4" />
