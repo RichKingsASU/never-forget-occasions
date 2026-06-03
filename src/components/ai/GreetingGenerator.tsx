@@ -179,7 +179,7 @@ export const GreetingGenerator = ({
                 {streaming ? "Generating…" : output ? "Regenerate" : "Generate greeting"}
               </Button>
               <p className="text-[11px] text-muted-foreground">
-                Demo mode · enable Lovable Cloud to power this with the real Lovable AI gateway.
+                Demo mode · connect an AI provider to power this with real generated greetings.
               </p>
             </div>
           </div>

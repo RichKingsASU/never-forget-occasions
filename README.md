@@ -1,73 +1,57 @@
-# Welcome to your Lovable project
+# Never Forget Occasions
 
-## Project info
+Automated AI video greetings & curated gifts so you never miss a birthday,
+anniversary, or milestone.
 
-**URL**: https://lovable.dev/projects/a5e819fc-8eeb-4d84-a631-9def767f8ce2
+Built with **Vite + React + TypeScript + Tailwind CSS (shadcn-ui)** and
+**Supabase**, hosted on **Netlify**.
 
-## How can I edit this code?
+## Local development
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/a5e819fc-8eeb-4d84-a631-9def767f8ce2) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Requires [Node.js](https://nodejs.org) 18+ and npm.
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install dependencies
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the dev server (http://localhost:8080)
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Environment variables
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The app talks to Supabase via two public, browser-safe variables. Copy the
+template and fill in your values:
 
-**Use GitHub Codespaces**
+```sh
+cp .env.example .env
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| Variable                  | Description                                  |
+| ------------------------- | -------------------------------------------- |
+| `VITE_SUPABASE_URL`       | Your Supabase project URL                    |
+| `VITE_SUPABASE_ANON_KEY`  | Supabase anon (public) key — safe in browser |
 
-## What technologies are used for this project?
+> Vite inlines `VITE_*` variables at **build time**. On Netlify, set them
+> under **Site settings → Environment variables** (they're already configured
+> for this project), then trigger a redeploy so the new build picks them up.
 
-This project is built with:
+## Build
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```sh
+npm run build      # production build → dist/
+npm run preview    # preview the production build locally
+```
 
-## How can I deploy this project?
+## Deployment (Netlify)
 
-Simply open [Lovable](https://lovable.dev/projects/a5e819fc-8eeb-4d84-a631-9def767f8ce2) and click on Share -> Publish.
+- **Build command:** `npm run build`
+- **Publish directory:** `dist`
+- SPA routing and build settings are defined in [`netlify.toml`](./netlify.toml).
 
-## Can I connect a custom domain to my Lovable project?
+Pushes to the configured branch trigger an automatic deploy.
 
-Yes, you can!
+## Images
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Landing-page imagery is served from [`public/images/`](./public/images/).
+See the README in that folder for the expected filenames.

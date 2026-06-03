@@ -6,7 +6,6 @@ import { useRef } from "react";
 import { AuroraText } from "@/components/effects/AuroraText";
 import { WordRotate } from "@/components/effects/WordRotate";
 import { BorderBeam } from "@/components/effects/BorderBeam";
-import heroAsset from "@/assets/hero-celebrate.png.asset.json";
 
 export const Hero = () => {
   const ref = useRef<HTMLElement>(null);
@@ -112,7 +111,7 @@ export const Hero = () => {
             <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-hero opacity-30 blur-3xl" />
             <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-premium">
               <img
-                src={heroAsset.url}
+                src="/images/hero-celebrate.png"
                 alt="iPhone with a soft gradient lockscreen beside a cream gift box, purple ribbon, and pale rose on linen"
                 className="absolute inset-0 h-full w-full object-cover"
               />

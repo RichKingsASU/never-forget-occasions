@@ -1,5 +1,4 @@
 import { CalendarHeart, Wand2, Send } from "lucide-react";
-import storyboardAsset from "@/assets/storyboard-triptych.png.asset.json";
 
 const steps = [
   {
@@ -76,7 +75,7 @@ export const HowItWorks = () => (
 
       <div className="mt-8 overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-premium">
         <img
-          src={storyboardAsset.url}
+          src="/images/storyboard-triptych.png"
           alt="Storyboard collage showing gift browsing, flowers, anniversary celebration, memory videos, package opening, reminders, and message writing"
           className="aspect-[16/9] w-full object-cover"
           loading="lazy"
