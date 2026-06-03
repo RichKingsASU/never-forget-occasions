@@ -12,12 +12,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Check, ChevronLeft, ChevronRight, Truck, Mail, Sparkles, CreditCard, Lock, Apple, Edit,
+  Check, ChevronLeft, ChevronRight, Truck, Mail, Sparkles, CreditCard, Lock, Apple, Edit, Loader2,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useOrders } from "@/context/OrdersContext";
-import { mockContacts, formatCurrency, type MockOrder, type OrderItem } from "@/lib/mock-data";
+import { formatCurrency } from "@/lib/mock-data";
 import { toast } from "sonner";
+import { useContacts } from "@/hooks/useContacts";
 
 const STEPS = ["Recipient", "Greeting", "Payment", "Review"] as const;
 type StepIdx = 0 | 1 | 2 | 3;
@@ -35,13 +36,20 @@ export const Checkout = () => {
   const { add } = useOrders();
   const navigate = useNavigate();
 
+  const { data: contacts = [], isLoading: contactsLoading } = useContacts();
+
   const [step, setStep] = useState<StepIdx>(0);
 
   // Step 1
-  const [contactId, setContactId] = useState(mockContacts[0]?.id ?? "");
+  const [contactId, setContactId] = useState("");
   const [newRecipient, setNewRecipient] = useState({ name: "", email: "", line1: "", city: "", zip: "", country: "US" });
   const [useNew, setUseNew] = useState(false);
   const [shipId, setShipId] = useState<typeof SHIPPING[number]["id"]>("std");
+
+  // Pick first contact once loaded if none selected
+  if (!contactId && contacts.length > 0) {
+    setContactId(contacts[0].id);
+  }
 
   // Step 2
   const [attachGreeting, setAttachGreeting] = useState(true);
@@ -64,8 +72,8 @@ export const Checkout = () => {
 
   const recipientLabel = useMemo(() => {
     if (useNew) return newRecipient.name || "(new recipient)";
-    return mockContacts.find((c) => c.id === contactId)?.name ?? "—";
-  }, [useNew, newRecipient.name, contactId]);
+    return contacts.find((c) => c.id === contactId)?.name ?? "—";
+  }, [useNew, newRecipient.name, contactId, contacts]);
 
   const greetingPreview = useMemo(() => {
     if (!attachGreeting) return null;
@@ -102,11 +110,11 @@ export const Checkout = () => {
 
   const placeOrder = () => {
     if (!validateStep()) return;
-    const order: MockOrder = {
+    const order = {
       id: `NFO-26-${Math.floor(1000 + Math.random() * 8999)}`,
       date: new Date().toISOString().slice(0,10),
       status: "placed",
-      items: items.map<OrderItem>((l) => ({ giftId: l.giftId, name: l.name, variant: l.variant, qty: l.qty, price: l.unitPrice, hue: l.hue })),
+      items: items.map((l) => ({ giftId: l.giftId, name: l.name, variant: l.variant, qty: l.qty, price: l.unitPrice, hue: l.hue })),
       recipient: { name: recipientLabel, address: useNew ? `${newRecipient.line1}, ${newRecipient.city}` : undefined },
       greeting: greetingPreview ?? undefined,
       channel: attachGreeting ? sendChannel : undefined,
@@ -181,18 +189,31 @@ export const Checkout = () => {
                     </div>
 
                     {!useNew ? (
-                      <RadioGroup value={contactId} onValueChange={setContactId} className="space-y-2">
-                        {mockContacts.map((c) => (
-                          <label key={c.id} className={`flex items-center gap-3 rounded-lg border p-3 transition cursor-pointer ${contactId === c.id ? "border-corten/60 bg-corten/5" : "border-border/60 hover:border-border"}`}>
-                            <RadioGroupItem value={c.id} />
-                            <Avatar className="h-9 w-9"><AvatarFallback className="bg-gradient-to-br from-primary to-corten text-[11px] font-semibold text-primary-foreground">{c.name.split(" ").map(n=>n[0]).join("").slice(0,2)}</AvatarFallback></Avatar>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium">{c.name}</p>
-                              <p className="truncate text-xs text-muted-foreground">{c.relationship} · {c.email ?? c.phone}</p>
-                            </div>
-                          </label>
-                        ))}
-                      </RadioGroup>
+                      contactsLoading ? (
+                        <div className="flex h-32 items-center justify-center">
+                          <Loader2 className="h-6 w-6 animate-spin text-corten" />
+                        </div>
+                      ) : contacts.length === 0 ? (
+                        <div className="p-6 text-center">
+                          <p className="text-sm text-muted-foreground">You don't have any contacts yet.</p>
+                          <Button asChild size="sm" className="mt-3 bg-corten text-white hover:bg-corten/90">
+                            <Link to="/contacts">Add a Contact</Link>
+                          </Button>
+                        </div>
+                      ) : (
+                        <RadioGroup value={contactId} onValueChange={setContactId} className="space-y-2">
+                          {contacts.map((c) => (
+                            <label key={c.id} className={`flex items-center gap-3 rounded-lg border p-3 transition cursor-pointer ${contactId === c.id ? "border-corten/60 bg-corten/5" : "border-border/60 hover:border-border"}`}>
+                              <RadioGroupItem value={c.id} />
+                              <Avatar className="h-9 w-9"><AvatarFallback className="bg-gradient-to-br from-primary to-corten text-[11px] font-semibold text-primary-foreground">{c.name.split(" ").map(n=>n[0]).join("").slice(0,2)}</AvatarFallback></Avatar>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium">{c.name}</p>
+                                <p className="truncate text-xs text-muted-foreground">{c.relationship} · {c.email ?? c.phone}</p>
+                              </div>
+                            </label>
+                          ))}
+                        </RadioGroup>
+                      )
                     ) : (
                       <div className="grid gap-3 md:grid-cols-2">
                         <div className="grid gap-1.5 md:col-span-2"><Label htmlFor="r-name">Name</Label><Input id="r-name" value={newRecipient.name} onChange={(e)=>setNewRecipient({...newRecipient,name:e.target.value})} /></div>
@@ -202,6 +223,7 @@ export const Checkout = () => {
                         <div className="grid gap-1.5"><Label htmlFor="r-zip">ZIP</Label><Input id="r-zip" value={newRecipient.zip} onChange={(e)=>setNewRecipient({...newRecipient,zip:e.target.value})} /></div>
                       </div>
                     )}
+
 
                     <Separator className="bg-border/50" />
                     <div>
