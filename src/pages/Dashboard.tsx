@@ -64,7 +64,17 @@ const RelationshipChart = () => {
   );
 };
 
-const Tick = ({ label, value, hint, tone = "primary" as "primary" | "corten" | "neon" }) => (
+const Tick = ({
+  label,
+  value,
+  hint,
+  tone = "primary",
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  tone?: "primary" | "corten" | "neon";
+}) => (
   <div className="flex items-baseline justify-between border-b border-border/40 py-1.5 last:border-0">
     <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{label}</span>
     <span className="flex items-center gap-2 tabular-nums">
