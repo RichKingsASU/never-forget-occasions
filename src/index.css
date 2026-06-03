@@ -61,6 +61,17 @@
 
     --radius: 1rem;
 
+    /* Brand-tinted depth */
+    --shadow-primary: 0 8px 30px -6px hsl(var(--primary) / 0.35);
+    --shadow-primary-lg: 0 12px 40px -8px hsl(var(--primary) / 0.40);
+    --shadow-2xs: 0 1px 1px hsl(240 10% 4% / 0.04);
+    --shadow-xs: 0 1px 2px hsl(240 10% 4% / 0.05);
+    --shadow-sm: 0 2px 6px -1px hsl(240 10% 4% / 0.06);
+    --shadow-md: 0 6px 16px -4px hsl(240 10% 4% / 0.08);
+    --shadow-lg: 0 12px 28px -8px hsl(240 10% 4% / 0.10);
+    --shadow-xl: 0 20px 40px -12px hsl(240 10% 4% / 0.14);
+    --shadow-2xl: 0 30px 60px -20px hsl(240 10% 4% / 0.22);
+
     --sidebar-background: 260 40% 99%;
     --sidebar-foreground: 240 10% 25%;
     --sidebar-primary: 251 69% 61%;
