@@ -94,100 +94,97 @@ export const GiftCatalog = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="dark min-h-dvh bg-background text-foreground">
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-walnut/40" />
+        <div className="absolute inset-0 bg-aurora opacity-30" />
+        <div className="absolute inset-0 bg-canvas-grid opacity-[0.3]" />
+        <div className="absolute -top-40 right-0 h-96 w-96 rounded-full bg-corten/15 blur-[140px]" />
+      </div>
       <Navigation currentPage="gifts" />
-      
-      <div className="p-4 md:p-8 lg:ml-64">
-        <div className="max-w-7xl mx-auto">
+
+      <div className="p-4 md:p-6 lg:ml-64">
+        <div className="mx-auto max-w-[1600px]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="glass-panel glass-inset mb-4 flex items-center justify-between p-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">Gift Catalog 🎁</h1>
-              <p className="text-muted-foreground">Add thoughtful gifts to make every occasion special</p>
+              <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-corten">
+                <span className="dot-neon inline-block h-1.5 w-1.5 rounded-full" aria-hidden="true" />
+                catalog · 156 sku · live inventory
+              </p>
+              <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight">Marketplace</h1>
             </div>
-            <Button variant="gradient">
-              <Gift className="w-4 h-4" />
-              Browse by Occasion
+            <Button size="sm" className="h-8 gap-1.5 bg-corten text-xs text-white hover:bg-corten/90">
+              <Gift className="h-3.5 w-3.5" aria-hidden="true" /> Browse by occasion
             </Button>
           </div>
 
-          {/* Search and Filters */}
-          <Card className="p-6 mb-8 border-0 shadow-soft">
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="Search gifts..." 
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4" />
-                  Price Range
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Heart className="w-4 h-4" />
-                  Popular
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Star className="w-4 h-4" />
-                  Highest Rated
-                </Button>
-              </div>
+          {/* Search and filters */}
+          <div className="glass-panel glass-inset mb-3 flex flex-col gap-2 p-3 lg:flex-row lg:items-center">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <Input
+                type="search"
+                aria-label="Search gifts"
+                placeholder="Search SKUs, providers, occasions…"
+                className="h-9 rounded-md border-border/60 bg-background/40 pl-9 font-mono text-xs"
+              />
             </div>
-          </Card>
+            <div className="flex gap-1.5" role="toolbar" aria-label="Filters">
+              <Button variant="ghost" size="sm" className="h-8 gap-1.5 border border-border/60 text-xs"><Filter className="h-3.5 w-3.5" aria-hidden="true" /> Price</Button>
+              <Button variant="ghost" size="sm" className="h-8 gap-1.5 border border-border/60 text-xs"><Heart className="h-3.5 w-3.5" aria-hidden="true" /> Popular</Button>
+              <Button variant="ghost" size="sm" className="h-8 gap-1.5 border border-border/60 text-xs"><Star className="h-3.5 w-3.5" aria-hidden="true" /> Top-rated</Button>
+            </div>
+          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[260px_1fr]">
             {/* Categories Sidebar */}
-            <div className="lg:col-span-1">
-              <Card className="p-6 border-0 shadow-soft sticky top-8">
-                <h3 className="font-semibold text-foreground mb-4">Categories</h3>
-                <div className="space-y-2">
+            <aside aria-label="Filter facets">
+              <div className="glass-panel glass-inset sticky top-4 p-4">
+                <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">categories</h3>
+                <div className="space-y-0.5">
                   {categories.map((category) => (
                     <button
                       key={category.id}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-smooth ${
+                      aria-pressed={category.id === "all"}
+                      className={`flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-sm transition ${
                         category.id === 'all'
-                          ? "bg-gradient-secondary text-primary"
-                          : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                          ? "bg-corten/15 text-corten ring-1 ring-corten/30"
+                          : "text-muted-foreground hover:bg-card/60 hover:text-foreground"
                       }`}
                     >
                       <span>{category.label}</span>
-                      <Badge variant="secondary" className="text-xs">
-                        {category.count}
-                      </Badge>
+                      <span className="font-mono text-[10px] tabular-nums text-muted-foreground">{category.count}</span>
                     </button>
                   ))}
                 </div>
 
-                <div className="mt-8">
-                  <h3 className="font-semibold text-foreground mb-4">Occasions</h3>
-                  <div className="flex flex-wrap gap-2">
+                <div className="mt-5 border-t border-border/40 pt-4">
+                  <h3 className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">occasions</h3>
+                  <div className="flex flex-wrap gap-1">
                     {occasions.map((occasion) => (
-                      <Badge 
-                        key={occasion} 
-                        variant="secondary" 
-                        className="text-xs cursor-pointer hover:bg-primary hover:text-white transition-smooth"
+                      <Badge
+                        key={occasion}
+                        variant="secondary"
+                        className="h-5 cursor-pointer border border-border/50 bg-background/40 px-1.5 text-[10px] hover:border-corten/40 hover:text-corten"
                       >
                         {occasion}
                       </Badge>
                     ))}
                   </div>
                 </div>
-              </Card>
-            </div>
+              </div>
+            </aside>
 
             {/* Gift Grid */}
-            <div className="lg:col-span-3">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-foreground">All Gifts ({sampleGifts.length})</h2>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>Sort by:</span>
-                  <select className="bg-background border border-input rounded-md px-2 py-1">
+            <div>
+              <div className="mb-2 flex items-center justify-between px-1">
+                <h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                  results · <span className="text-foreground">{sampleGifts.length}</span> of 156
+                </h2>
+                <div className="flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
+                  <span>sort</span>
+                  <select aria-label="Sort by" className="rounded-md border border-border/60 bg-background/40 px-2 py-1 text-xs">
                     <option>Popularity</option>
                     <option>Price: Low to High</option>
                     <option>Price: High to Low</option>
@@ -195,21 +192,17 @@ export const GiftCatalog = () => {
                   </select>
                 </div>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
                 {sampleGifts.map((gift) => (
                   <GiftCard key={gift.id} {...gift} />
                 ))}
               </div>
 
               {/* Load More */}
-              <div className="text-center mt-12">
-                <Button variant="outline" size="lg">
-                  Load More Gifts
-                </Button>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Showing 6 of 156 gifts
-                </p>
+              <div className="mt-6 flex items-center justify-between border-t border-border/40 pt-4 font-mono text-[11px] text-muted-foreground">
+                <span>showing 6 of 156</span>
+                <Button size="sm" variant="ghost" className="h-8 border border-border/60 text-xs">Load more →</Button>
               </div>
             </div>
           </div>

@@ -72,25 +72,25 @@
   }
 
   .dark {
-    /* #09090B */
-    --background: 240 7% 4%;
-    --foreground: 260 20% 97%;
+    /* Dark Walnut over pitch black — operator control plane */
+    --background: 24 12% 4%;
+    --foreground: 30 20% 96%;
 
-    --card: 240 8% 7%;
-    --card-foreground: 260 20% 97%;
+    --card: 24 14% 7%;
+    --card-foreground: 30 20% 96%;
 
-    --popover: 240 8% 7%;
-    --popover-foreground: 260 20% 97%;
+    --popover: 24 16% 6%;
+    --popover-foreground: 30 20% 96%;
 
     --primary: 273 84% 70%;
     --primary-foreground: 240 7% 6%;
     --primary-glow: 251 80% 70%;
 
-    --secondary: 240 6% 12%;
-    --secondary-foreground: 260 20% 97%;
+    --secondary: 24 10% 11%;
+    --secondary-foreground: 30 20% 96%;
 
-    --muted: 240 6% 12%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 24 8% 12%;
+    --muted-foreground: 30 8% 64%;
 
     --accent: 199 96% 67%;
     --accent-foreground: 240 7% 6%;
@@ -101,14 +101,14 @@
     --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 6% 16%;
-    --input: 240 6% 16%;
+    --border: 24 10% 14%;
+    --input: 24 10% 14%;
     --ring: 273 84% 70%;
 
     --gradient-primary: linear-gradient(135deg, hsl(258 71% 62%) 0%, hsl(273 84% 67%) 100%);
     --gradient-secondary: linear-gradient(135deg, hsl(240 8% 10%) 0%, hsl(251 30% 15%) 100%);
     --gradient-hero: linear-gradient(135deg, hsl(251 69% 50%) 0%, hsl(273 84% 60%) 45%, hsl(199 96% 55%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(240 8% 8%) 0%, hsl(240 8% 6%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(24 14% 8%) 0%, hsl(24 14% 5%) 100%);
     --gradient-aurora: radial-gradient(ellipse at 20% 0%, hsl(273 84% 50% / 0.45), transparent 50%),
                        radial-gradient(ellipse at 80% 20%, hsl(199 96% 45% / 0.30), transparent 55%),
                        radial-gradient(ellipse at 50% 100%, hsl(251 69% 50% / 0.35), transparent 60%);
@@ -118,14 +118,22 @@
     --shadow-card: 0 12px 40px -12px hsl(0 0% 0% / 0.50);
     --shadow-premium: 0 24px 60px -20px hsl(0 0% 0% / 0.70);
 
-    --sidebar-background: 240 8% 6%;
-    --sidebar-foreground: 260 15% 85%;
+    --sidebar-background: 24 16% 5%;
+    --sidebar-foreground: 30 15% 85%;
     --sidebar-primary: 273 84% 70%;
     --sidebar-primary-foreground: 240 7% 6%;
-    --sidebar-accent: 240 6% 12%;
+    --sidebar-accent: 24 10% 12%;
     --sidebar-accent-foreground: 273 84% 80%;
-    --sidebar-border: 240 6% 16%;
+    --sidebar-border: 24 10% 14%;
     --sidebar-ring: 273 84% 70%;
+  }
+
+  /* Shared accent tokens across themes — Southwest Desert Modern */
+  :root, .dark {
+    --corten: 14 78% 48%;        /* Corten steel — burnt sienna */
+    --corten-glow: 18 92% 58%;
+    --neon: 152 92% 55%;         /* terminal-grade green indicator */
+    --walnut: 24 24% 14%;
   }
 }
 
@@ -155,10 +163,47 @@
     color: transparent;
   }
   .glass {
-    @apply backdrop-blur-xl bg-card/60 border border-border/60;
+    @apply backdrop-blur-xl bg-card/55 border border-border/60;
   }
   .glass-strong {
-    @apply backdrop-blur-2xl bg-card/80 border border-border/80;
+    @apply backdrop-blur-2xl bg-card/75 border border-border/80;
+  }
+  .glass-panel {
+    background:
+      linear-gradient(180deg, hsl(var(--card) / 0.72), hsl(var(--card) / 0.5)),
+      radial-gradient(120% 80% at 0% 0%, hsl(var(--primary) / 0.08), transparent 60%);
+    @apply backdrop-blur-2xl border border-border/60 rounded-2xl;
+  }
+  .glass-inset {
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.05),
+      inset 0 -1px 0 hsl(0 0% 0% / 0.4);
+  }
+  .ring-corten { box-shadow: 0 0 0 1px hsl(var(--corten) / 0.4), 0 0 24px -8px hsl(var(--corten-glow) / 0.55); }
+  .text-corten { color: hsl(var(--corten-glow)); }
+  .bg-corten { background-color: hsl(var(--corten)); }
+  .dot-neon { background: hsl(var(--neon)); box-shadow: 0 0 0 4px hsl(var(--neon) / 0.15), 0 0 12px hsl(var(--neon) / 0.55); }
+
+  /* Shimmer skeleton — replaces spinners during streaming/data fetch */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+    background: hsl(var(--muted) / 0.6);
+  }
+  .shimmer::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.06), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  /* Canvas-style grid backdrop for analytics surfaces */
+  .bg-canvas-grid {
+    background-image:
+      linear-gradient(hsl(var(--border) / 0.35) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.35) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
   .bg-aurora {
     background-image: var(--gradient-aurora);
