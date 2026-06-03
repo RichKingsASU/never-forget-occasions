@@ -1,3 +1,4 @@
+import phoneAsset from "@/assets/phone-calendar.png.asset.json";
 import {
   Video,
   Bell,
@@ -35,8 +36,13 @@ export const FeatureBento = () => (
             Cinematic templates, voice-matched scripts, and 60-second renders. Your message — at scale.
           </p>
 
-          <div className="relative mt-6 h-56 overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-primary/20 via-background to-accent/20">
-            <div className="absolute inset-0 bg-[length:200%_100%] animate-shimmer bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
+          <div className="relative mt-6 overflow-hidden rounded-2xl border border-border/60 bg-background/40">
+            <img
+              src={phoneAsset.url}
+              alt="Floating iPhone showing NFO calendar with reminder, video, and gift cards"
+              className="mx-auto h-64 w-full object-contain"
+              loading="lazy"
+            />
             <Sparkles className="absolute right-3 top-3 h-4 w-4 text-primary" />
           </div>
         </div>
