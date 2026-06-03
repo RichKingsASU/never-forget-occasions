@@ -2,6 +2,7 @@ import { Star, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { TiltCard } from "@/components/effects/TiltCard";
 
 const items = [
   { name: "Garden Rose Bouquet", maker: "FTD Studio", price: 64, rating: 4.9, tag: "Flowers", tone: "from-rose-400/30 to-pink-300/20", h: "h-72" },
@@ -35,37 +36,36 @@ export const MarketplacePreview = () => (
 
       <div className="columns-1 gap-4 sm:columns-2 lg:columns-4 [&>*]:mb-4 [&>*]:break-inside-avoid">
         {items.map((it) => (
-          <article
-            key={it.name}
-            className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card transition hover:-translate-y-1 hover:shadow-card"
-          >
-            <div className={`relative ${it.h} overflow-hidden`}>
-              <div className={`absolute inset-0 bg-gradient-to-br ${it.tone}`} />
-              <div className="absolute inset-0 bg-aurora opacity-40" />
-              <button
-                aria-label={`Save ${it.name} to wishlist`}
-                className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-background/80 backdrop-blur transition hover:bg-background"
-              >
-                <Heart className="h-4 w-4" />
-              </button>
-              <Badge className="absolute left-3 top-3 border-0 bg-background/80 text-foreground backdrop-blur">
-                {it.tag}
-              </Badge>
-            </div>
-            <div className="space-y-2 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-medium leading-tight">{it.name}</h3>
-                  <p className="text-xs text-muted-foreground">by {it.maker}</p>
+          <TiltCard key={it.name} max={6}>
+            <article className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card transition hover:shadow-card">
+              <div className={`relative ${it.h} overflow-hidden`}>
+                <div className={`absolute inset-0 bg-gradient-to-br ${it.tone}`} />
+                <div className="absolute inset-0 bg-aurora opacity-40" />
+                <button
+                  aria-label={`Save ${it.name} to wishlist`}
+                  className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-background/80 backdrop-blur transition hover:bg-background"
+                >
+                  <Heart className="h-4 w-4" />
+                </button>
+                <Badge className="absolute left-3 top-3 border-0 bg-background/80 text-foreground backdrop-blur">
+                  {it.tag}
+                </Badge>
+              </div>
+              <div className="space-y-2 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-medium leading-tight">{it.name}</h3>
+                    <p className="text-xs text-muted-foreground">by {it.maker}</p>
+                  </div>
+                  <span className="font-display text-lg font-semibold">${it.price}</span>
                 </div>
-                <span className="font-display text-lg font-semibold">${it.price}</span>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                  {it.rating} · verified creator
+                </div>
               </div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                {it.rating} · verified creator
-              </div>
-            </div>
-          </article>
+            </article>
+          </TiltCard>
         ))}
       </div>
     </div>

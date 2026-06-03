@@ -1,12 +1,17 @@
 import { Card } from "@/components/ui/card";
 import { Quote } from "lucide-react";
+import { CountUp } from "@/components/effects/CountUp";
+import { Marquee } from "@/components/effects/Marquee";
+import { ActivityTicker } from "@/components/effects/ActivityTicker";
 
 const stats = [
-  { value: "2.4M", label: "Occasions remembered" },
-  { value: "840K", label: "Gifts delivered" },
-  { value: "12.4K", label: "5-star reviews" },
-  { value: "98%", label: "On-time delivery" },
+  { value: 2_400_000, suffix: "+", label: "Occasions remembered", format: "compact" as const },
+  { value: 840_000, suffix: "+", label: "Gifts delivered", format: "compact" as const },
+  { value: 12_400, suffix: "", label: "5-star reviews", format: "compact" as const },
+  { value: 98, suffix: "%", label: "On-time delivery", format: "plain" as const },
 ];
+
+const logos = ["TechCrunch", "Forbes", "Fast Company", "The Verge", "Product Hunt", "Wired", "Vogue", "Bloomberg", "Architectural Digest"];
 
 const testimonials = [
   {
@@ -38,13 +43,29 @@ export const SocialProof = () => (
             key={s.label}
             className="border-0 bg-gradient-card p-6 text-center shadow-soft"
           >
-            <p className="font-display text-3xl font-bold text-gradient md:text-4xl">{s.value}</p>
+            <CountUp
+              value={s.value}
+              suffix={s.suffix}
+              format={s.format}
+              className="font-display text-3xl font-bold text-gradient md:text-4xl tabular-nums"
+            />
             <p className="mt-1 text-sm text-muted-foreground">{s.label}</p>
           </Card>
         ))}
       </div>
 
-      <div className="mt-16 grid gap-6 lg:grid-cols-3">
+      <div className="mt-12">
+        <Marquee duration={40}>
+          {logos.map((l) => (
+            <span key={l} className="font-display text-xl font-semibold tracking-tight text-muted-foreground/70 hover:text-foreground transition">
+              {l}
+            </span>
+          ))}
+        </Marquee>
+      </div>
+
+      <div className="mt-16 grid gap-6 lg:grid-cols-[2fr,1fr]">
+      <div className="grid gap-6 md:grid-cols-3">
         {testimonials.map((t, i) => (
           <Card
             key={t.name}
@@ -62,6 +83,8 @@ export const SocialProof = () => (
             </div>
           </Card>
         ))}
+      </div>
+        <ActivityTicker />
       </div>
     </div>
   </section>
