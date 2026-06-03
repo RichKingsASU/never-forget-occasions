@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Sparkles, Play, Star, Calendar, Gift, Bell } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import heroAsset from "@/assets/hero-woman.png.asset.json";
 import { AuroraText } from "@/components/effects/AuroraText";
 import { WordRotate } from "@/components/effects/WordRotate";
 import { BorderBeam } from "@/components/effects/BorderBeam";
@@ -110,14 +109,10 @@ export const Hero = () => {
           {/* Visual */}
           <motion.div style={{ y: yImage }} className="relative animate-fade-in-up" >
             <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-hero opacity-30 blur-3xl" />
-            <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-premium">
-              <img
-                src={heroAsset.url}
-                alt="Friends and family celebrating a birthday with confetti and candles"
-                width={1536}
-                height={1152}
-                className="aspect-[4/3] h-full w-full object-cover"
-              />
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-to-br from-primary/30 via-accent/20 to-card shadow-premium">
+              <div className="absolute inset-0 bg-grid opacity-30" />
+              <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gradient-primary opacity-40 blur-3xl" />
+              <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-accent/40 blur-3xl" />
               <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background/95 via-background/30 to-transparent" />
 
               {/* Floating cards */}
