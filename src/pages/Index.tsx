@@ -8,21 +8,24 @@ import { Pricing } from "@/components/landing/Pricing";
 import { FAQ } from "@/components/landing/FAQ";
 import { CTA } from "@/components/landing/CTA";
 import { Footer } from "@/components/landing/Footer";
+import { AnimatedSection } from "@/components/AnimatedSection";
+import { NoiseOverlay } from "@/components/NoiseOverlay";
 
 const Index = () => (
-  <div className="min-h-screen bg-background">
+  <div className="relative min-h-screen bg-mesh">
+    <NoiseOverlay />
     <LandingNav />
     <main>
       <Hero />
-      <HowItWorks />
-      <FeatureBento />
-      <MarketplacePreview />
-      <SocialProof />
-      <Pricing />
-      <FAQ />
-      <CTA />
+      <AnimatedSection animation="fade-up" delay={0}><HowItWorks /></AnimatedSection>
+      <AnimatedSection animation="fade-up" delay={75}><FeatureBento /></AnimatedSection>
+      <AnimatedSection animation="fade-up" delay={75}><MarketplacePreview /></AnimatedSection>
+      <AnimatedSection animation="fade-up" delay={75}><SocialProof /></AnimatedSection>
+      <AnimatedSection animation="scale" delay={75}><Pricing /></AnimatedSection>
+      <AnimatedSection animation="fade-up" delay={75}><FAQ /></AnimatedSection>
+      <AnimatedSection animation="scale" delay={75}><CTA /></AnimatedSection>
     </main>
-    <Footer />
+    <AnimatedSection animation="fade-up"><Footer /></AnimatedSection>
   </div>
 );
 
