@@ -70,7 +70,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				corten: {
+					DEFAULT: 'hsl(var(--corten))',
+					glow: 'hsl(var(--corten-glow))'
+				},
+				neon: 'hsl(var(--neon))',
+				walnut: 'hsl(var(--walnut))'
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
