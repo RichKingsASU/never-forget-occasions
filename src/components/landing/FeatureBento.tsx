@@ -1,3 +1,4 @@
+import phoneMockup from "@/assets/phone-mockup.png.asset.json";
 import {
   Video,
   Bell,
@@ -35,16 +36,14 @@ export const FeatureBento = () => (
             Cinematic templates, voice-matched scripts, and 60-second renders. Your message — at scale.
           </p>
 
-          <div className="mt-6 overflow-hidden rounded-2xl border border-border/60 bg-background/60 p-4 backdrop-blur">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-hero" />
-              <div className="flex-1">
-                <div className="h-2 w-2/3 rounded bg-muted-foreground/30" />
-                <div className="mt-2 h-2 w-1/2 rounded bg-muted-foreground/20" />
-              </div>
-              <Sparkles className="h-4 w-4 text-primary" />
-            </div>
-            <div className="mt-4 h-32 rounded-xl bg-[linear-gradient(110deg,hsl(var(--muted))_30%,hsl(var(--secondary))_50%,hsl(var(--muted))_70%)] bg-[length:200%_100%] animate-shimmer" />
+          <div className="relative mt-6 overflow-hidden rounded-2xl border border-border/60 bg-background/60 p-2 backdrop-blur">
+            <img
+              src={phoneMockup.url}
+              alt="iPhone showing NFO calendar with floating reminder, video, and gift cards"
+              className="mx-auto h-56 w-full object-contain"
+              loading="lazy"
+            />
+            <Sparkles className="absolute right-3 top-3 h-4 w-4 text-primary" />
           </div>
         </div>
 

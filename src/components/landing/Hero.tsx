@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Sparkles, Play, Star, Calendar, Gift, Bell } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import heroImage from "@/assets/hero-image.jpg";
+import heroAsset from "@/assets/hero-woman.png.asset.json";
 import { AuroraText } from "@/components/effects/AuroraText";
 import { WordRotate } from "@/components/effects/WordRotate";
 import { BorderBeam } from "@/components/effects/BorderBeam";
@@ -112,7 +112,7 @@ export const Hero = () => {
             <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-hero opacity-30 blur-3xl" />
             <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-premium">
               <img
-                src={heroImage}
+                src={heroAsset.url}
                 alt="Friends and family celebrating a birthday with confetti and candles"
                 width={1536}
                 height={1152}
