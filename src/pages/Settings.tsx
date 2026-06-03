@@ -11,10 +11,12 @@ import { Separator } from "@/components/ui/separator";
 import {
   Tabs, TabsList, TabsTrigger, TabsContent,
 } from "@/components/ui/tabs";
-import { Settings as SettingsIcon, User, Bell, CreditCard, Lock, Plug, Sparkles } from "lucide-react";
+import { Settings as SettingsIcon, User, Bell, CreditCard, Lock, Plug, Sparkles, Palette as PaletteIcon, Sun, Moon, Check } from "lucide-react";
 import { toast } from "sonner";
+import { usePalette } from "@/context/PaletteContext";
 
 export const Settings = () => {
+  const { palettes, paletteId, setPaletteId, palette, mode, setMode } = usePalette();
   const [profile, setProfile] = useState({ name: "Alex Rivera", email: "alex@example.com", handle: "alex" });
   const [prefs, setPrefs] = useState({
     remindEmail: true,
@@ -51,6 +53,7 @@ export const Settings = () => {
               <TabsList className="glass-panel h-auto flex-wrap justify-start gap-1 border-0 bg-transparent p-1">
                 {[
                   { v: "profile",       l: "Profile",       i: User },
+                  { v: "appearance",    l: "Appearance",    i: PaletteIcon },
                   { v: "notifications", l: "Notifications", i: Bell },
                   { v: "billing",       l: "Billing",       i: CreditCard },
                   { v: "security",      l: "Security",      i: Lock },
@@ -61,6 +64,87 @@ export const Settings = () => {
                   </TabsTrigger>
                 ))}
               </TabsList>
+
+              {/* APPEARANCE */}
+              <TabsContent value="appearance" className="m-0 space-y-4">
+                <Card className="glass-panel border-0 p-6">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <h2 className="font-display text-lg font-semibold">Theme</h2>
+                      <p className="text-xs text-muted-foreground">
+                        Active palette · <span className="text-foreground">{palette.name}</span> · {palette.tagline}
+                      </p>
+                    </div>
+                    <div className="inline-flex rounded-lg border border-border bg-card/60 p-1">
+                      {([
+                        { v: "light",  l: "Light",  I: Sun  },
+                        { v: "dark",   l: "Dark",   I: Moon },
+                        { v: "system", l: "Auto",   I: SettingsIcon },
+                      ] as const).map(({ v, l, I }) => (
+                        <button
+                          key={v}
+                          onClick={() => setMode(v)}
+                          className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs transition ${
+                            (v === "system" ? false : mode === v) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <I className="h-3.5 w-3.5" /> {l}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className={`mt-5 overflow-hidden rounded-xl border border-border`}>
+                    <div className={`h-24 w-full bg-gradient-to-r ${palette.gradient}`} />
+                    <div className="grid grid-cols-2 gap-3 bg-background p-4 md:grid-cols-4">
+                      <Preview label="Background" hex={palette.swatches[2]} />
+                      <Preview label="Primary"    hex={palette.swatches[0]} />
+                      <Preview label="Accent"     hex={palette.swatches[1]} />
+                      <Preview label="Heading"    hex={palette.swatches[3]} />
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="glass-panel border-0 p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="font-display text-base font-semibold">Choose a palette</h3>
+                    <Badge className="border-0 bg-primary/15 px-2 py-0.5 font-mono text-[10px] uppercase text-primary">{palettes.length} themes</Badge>
+                  </div>
+                  <div role="radiogroup" aria-label="Color palette" className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {palettes.map((p) => {
+                      const active = p.id === paletteId;
+                      return (
+                        <button
+                          key={p.id}
+                          role="radio"
+                          aria-checked={active}
+                          onClick={() => { setPaletteId(p.id); toast.success(`Theme · ${p.name}`); }}
+                          className={`group relative overflow-hidden rounded-xl border text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                            active ? "border-primary ring-2 ring-primary/40" : "border-border hover:border-foreground/30"
+                          }`}
+                        >
+                          <div className={`relative h-20 w-full bg-gradient-to-r ${p.gradient}`}>
+                            {active && (
+                              <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-background text-primary shadow-sm">
+                                <Check className="h-3.5 w-3.5" />
+                              </span>
+                            )}
+                            <div className="absolute inset-x-3 bottom-2 flex gap-1">
+                              {p.swatches.map((s, i) => (
+                                <span key={i} aria-hidden className="h-3 w-3 rounded-full ring-1 ring-background/60" style={{ background: s }} />
+                              ))}
+                            </div>
+                          </div>
+                          <div className="bg-card/80 p-3">
+                            <p className="text-sm font-semibold leading-tight">{p.name}</p>
+                            <p className="mt-0.5 text-[11px] text-muted-foreground">{p.tagline}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </Card>
+              </TabsContent>
 
               {/* PROFILE */}
               <TabsContent value="profile" className="m-0">
@@ -257,3 +341,13 @@ export const Settings = () => {
 };
 
 export default Settings;
+
+const Preview = ({ label, hex }: { label: string; hex: string }) => (
+  <div className="flex items-center gap-2 rounded-lg border border-border bg-card/40 p-2">
+    <span aria-hidden className="h-8 w-8 rounded-md ring-1 ring-border" style={{ background: hex }} />
+    <div className="min-w-0">
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="font-mono text-[11px] tabular-nums">{hex}</p>
+    </div>
+  </div>
+);
