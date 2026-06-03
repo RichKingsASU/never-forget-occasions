@@ -341,3 +341,13 @@ export const Settings = () => {
 };
 
 export default Settings;
+
+const Preview = ({ label, hex }: { label: string; hex: string }) => (
+  <div className="flex items-center gap-2 rounded-lg border border-border bg-card/40 p-2">
+    <span aria-hidden className="h-8 w-8 rounded-md ring-1 ring-border" style={{ background: hex }} />
+    <div className="min-w-0">
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="font-mono text-[11px] tabular-nums">{hex}</p>
+    </div>
+  </div>
+);
