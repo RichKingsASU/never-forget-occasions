@@ -1,79 +1,136 @@
 
-# Never Forget Occasions — Landing + Dashboard Polish
+# Plan — complete the frontend journey (no backend)
 
-Scope locked for this round: world-class landing page, polished dashboard, full light/dark theming with system auto-switch, and one real backend feature — AI greeting generation via Lovable AI. Marketplace, creator portal, calendar sync, auth, and payments are intentionally deferred to future rounds.
+Build every page a user would touch from landing → order confirmed, plus the detail/edit screens behind the existing nav. All state is client-side (React + a tiny `CartContext`). No Supabase, no Stripe — buttons resolve to mocked success states with toasts.
 
-## 1. Design system foundation
+## 1. Mock data layer (extend `src/lib/mock-data.ts`)
 
-Rebuild `src/index.css` + `tailwind.config.ts` around the NFO palette as HSL semantic tokens.
+Add typed mocks + helpers so every page reads from one source:
 
-- Colors: primary `#6D57E0`, gradient `#8358E0 → #AA63F2`, accent `#5AC8FA`, success `#34C759`, dark bg `#09090B`.
-- Typography: load Inter Tight (display) + Inter (body) via Google Fonts; map to `font-display` / `font-sans`.
-- Spacing: 8px scale (already Tailwind default — enforce via component usage).
-- Tokens: `--background`, `--foreground`, `--primary`, `--primary-glow`, `--accent`, `--success`, `--muted`, `--card`, `--border`, plus gradients (`--gradient-hero`, `--gradient-primary`, `--gradient-card`) and shadows (`--shadow-glow`, `--shadow-card`, `--shadow-soft`).
-- Light + dark variants for every token. `ThemeProvider` (next-themes) wired in `App.tsx` with `system` default + a header toggle.
-- Motion utilities: extend existing tailwind keyframes with `float`, `shimmer`, `gradient-shift`, `confetti-pop`. Framer Motion used for hero, bento hover, and step transitions.
+- `mockGifts` (12 items) — id, name, slug, category, price, images[], provider, rating, reviewCount, deliveryTime, occasions[], description, longDescription, variants (size/color/denomination), inStock, badges (popular/eco/new).
+- `mockOrders` (5 items) — id, date, status (placed/preparing/shipped/delivered), items[], recipient, total, tracking#.
+- `mockNotifications` (8 items) — id, type, title, body, time, read.
+- `mockReviews` for each gift (3 each).
+- Helpers: `findGift(slug)`, `findContact(id)`, `formatCurrency`, `estimateDelivery`.
 
-## 2. Landing page rebuild (`src/pages/Index.tsx` + new section components)
+## 2. Cart + shared providers
 
-Replace the current single-file page with composable sections under `src/components/landing/`:
+- `src/context/CartContext.tsx` — `{items, add, remove, update, clear, subtotal, count}` persisted to `localStorage`.
+- `src/context/OrdersContext.tsx` — append-only mock order log (in-memory + localStorage).
+- Mount both providers in `App.tsx` above the router.
+- Add a cart badge button to the Navigation sidebar footer + top bars.
 
-1. `Hero.tsx` — full-bleed gradient hero, animated aurora background, floating particle layer, headline "Celebrate Every Milestone With AI-Personalized Videos & Gifts", dual CTA, trust strip (avatars + "Join 10,000+"), animated dashboard mock peeking from bottom-right.
-2. `HowItWorks.tsx` — 3-step horizontal timeline (Remember → Personalize → Deliver) with scroll-linked Framer Motion reveals and connecting animated line.
-3. `FeatureBento.tsx` — 7-tile bento grid: AI Videos (large), Smart Reminders, Gift Marketplace, Family Plans, Creator Marketplace, Emotional Analytics, Group Gifting. Hover lift + glow.
-4. `MarketplacePreview.tsx` — Pinterest-style masonry of category cards (Flowers, Gift Cards, Experiences, Handmade, Art, Subscriptions, Luxury) with mock ratings/creator badges. Static — no cart wired.
-5. `SocialProof.tsx` — testimonial carousel, metric counters (occasions remembered, gifts sent, creators), press logo row.
-6. `Pricing.tsx` — monthly/yearly toggle, 4 plans (Free, Pro, Family, Enterprise HR), feature checkmarks, "Most Popular" highlight, FAQ accordion below.
-7. `Footer.tsx` — multi-column footer with product/company/legal/social links.
-8. `LandingNav.tsx` — sticky glass nav with theme toggle.
+## 3. Gift marketplace upgrade (`/gifts`)
 
-All copy realistic, no Lorem. Generate one hero image asset via image gen (diverse celebration scene) and use it lazily.
+Rebuild current `GiftCatalog.tsx` to:
 
-## 3. Dashboard polish (`src/pages/Dashboard.tsx` + existing components)
+- Pull from `mockGifts`.
+- Sticky filter rail: category, occasion, price range slider, rating, delivery speed.
+- Sort dropdown (Popular / Newest / Price ↑↓ / Rating).
+- Grid → click card routes to `/gifts/:slug`.
+- "Quick add" button on each card opens a side `Sheet` cart preview.
+- Empty/loading/no-results states.
 
-Keep current structure, elevate execution:
+## 4. Gift detail (`/gifts/:slug`) — new
 
-- New `DashboardLayout` with collapsible left nav (existing `Navigation.tsx` refined), top bar (search, theme toggle, notifications, avatar).
-- Stat cards: animated count-up, sparkline mini-charts (recharts), gradient icon chips.
-- "Upcoming Occasions" → richer card design with countdown ring, gift status chip, quick actions (Generate Greeting, Send Gift).
-- New `AIAssistantPanel` (right-side dock, collapsible) — chat UI for the greeting generator.
-- New `EmotionalInsights` card — small bento with mock relationship engagement chart.
-- New `QuickActions` row — Add Occasion, Generate Greeting (opens AI panel), Send Gift, Open Calendar.
-- Empty/loading/error states for each widget using skeletons.
+- Hero: image gallery (thumbnails + main), badges, rating, share button.
+- Right column: price, variant selector (size/denomination), quantity stepper, "Add to cart" + "Buy now", delivery estimate, gift-message textarea, schedule-send date picker.
+- Tabs: Description · Reviews · Shipping & returns · About the creator (links `/creators/:id`).
+- "You might also like" carousel.
+- Sticky mobile bottom bar with price + Add.
 
-## 4. AI greeting generator (real backend)
+## 5. Cart (`/cart`) — new
 
-New edge function `supabase/functions/generate-greeting/index.ts`:
+- Line items with thumbnail, qty stepper, remove, "save for later".
+- Promo code input (mock validates `NFO10` → 10% off).
+- Sidebar: subtotal, est. shipping, est. tax, total, "Checkout" CTA.
+- Trust strip (secure checkout, easy returns).
+- Empty cart state with CTA back to `/gifts`.
 
-- Inputs: recipient name, relationship, occasion, tone (Heartfelt / Funny / Romantic / Professional / Family-friendly), optional notes.
-- Calls Lovable AI Gateway `google/gemini-3-flash-preview` with streaming SSE.
-- System prompt enforces tone, length (~120 words), warm human voice, no clichés.
-- Returns text stream; handles 429/402 with friendly errors.
-- CORS enabled, public (no JWT required for this round).
+## 6. Checkout (`/checkout`) — new, 4 steps
 
-Frontend:
+Single page, stepper at top, each step its own component under `src/components/checkout/`:
 
-- `src/components/ai/GreetingGenerator.tsx` — modal + assistant panel surface. Form for inputs, tone pill selector, streaming output area with typing animation, copy + regenerate buttons.
-- Hooked into dashboard quick action and contact/occasion card "Generate Greeting" buttons.
-- No persistence this round — generated text lives in component state (DB persistence is a future round).
+1. **Recipient & delivery** — pick from contacts or enter new; address form; delivery window radio cards (Standard / Express / Same-day).
+2. **Greeting** — attach an AI greeting (opens `GreetingGenerator` inline) or skip; pick template; schedule send date/time.
+3. **Payment** — mock card form (Stripe-style fields, formatted card #, expiry, CVC, billing zip); saved-cards radio; "Pay with Apple Pay" mock button.
+4. **Review** — summary of all three, edit links per step, T&Cs checkbox, "Place order" → push to OrdersContext, navigate `/orders/:id?new=1`.
 
-Lovable Cloud must be enabled for this to work; plan assumes it gets enabled at build time.
+Order-summary card pinned right on `lg+`.
 
-## 5. Accessibility + responsive
+## 7. Order confirmation + history
 
-- Single `<main>` per route, semantic headings, `aria-label` on every icon-only button.
-- Focus-visible rings using `ring-primary`.
-- `prefers-reduced-motion` respected — disable particles and large transforms.
-- Mobile: hamburger nav, sticky bottom CTA on landing hero, dashboard nav becomes drawer < lg, bento collapses to single column.
+- `/orders/:id` — confetti animation on `?new=1`, status timeline (Placed → Preparing → Shipped → Delivered), recipient + greeting preview, tracking #, "View all orders" + "Send another".
+- `/orders` — list of past orders with filters (status, date), click → detail.
 
-## 6. Out of scope (explicitly deferred)
+## 8. Contact detail (`/contacts/:id`) — new
 
-Auth, contact import, calendar sync, full marketplace + checkout, creator portal, Stripe, analytics backend, voice input, push/email notifications, settings/billing pages, support center, about page. Each is its own phase — happy to plan those next.
+- Header with avatar, relationship, edit/delete.
+- Tabs: Occasions (list + Add occasion dialog), Gift history (orders sent), Greetings drafted, Notes.
+- "Add occasion" dialog with name + date + recurrence + channel + optional gift suggestion.
+
+## 9. Occasion flow
+
+- `/occasions/new` — full-page form (recipient → event → date/recurrence → channel → AI greeting → optional gift → review).
+- `/occasions/:id` — detail with countdown ring, scheduled greeting preview, attached gift, action bar (Edit, Duplicate, Dispatch now, Delete).
+
+## 10. Greeting composer flow (`/greetings/new`)
+
+Multi-step wizard replacing the modal for the long-form flow:
+1. Pick template (from `/templates` grid).
+2. Inputs (recipient, occasion, tone, notes).
+3. Streaming preview + edit.
+4. Schedule (date/time/channel) → confirmation screen.
+Existing modal `GreetingGenerator` stays for quick inline use.
+
+## 11. Template & creator detail
+
+- `/templates/:id` — large preview player, tone/length, "Use template" → routes to greeting composer step 2 with template prefilled, "Similar templates" row.
+- `/creators/:id` — banner, bio, follow, product grid filtered to that creator, recent reviews, "Message creator" mock.
+
+## 12. Auth + onboarding (UI only)
+
+- `/auth` — split-screen with marketing left / form right, tabs: Sign in · Sign up, Google + Apple mock buttons, magic-link path.
+- `/onboarding` — 4 steps (Profile → Import contacts (mock CSV + Google placeholder) → Add first occasion → Pick plan), progress bar, skip per step.
+- Mark auth as mocked; clicking submit just routes to `/dashboard`.
+
+## 13. Notifications + search
+
+- `/notifications` — grouped Today / This week / Earlier, mark-all-read, filter chips.
+- Global `Cmd+K` palette (`src/components/CommandPalette.tsx` using shadcn `Command`) — navigate anywhere, run common actions (New greeting, Add contact, Open cart).
+
+## 14. Misc polish
+
+- Custom `404` with illustration + "Back to dashboard" + recent routes.
+- `/legal/terms` and `/legal/privacy` placeholder pages with realistic copy (linked from footer).
+- Footer + landing links updated to point at real routes.
+- Every page already uses the existing `Navigation` sidebar, glass-panel tokens, and dark Walnut/Corten palette — no design-system changes.
+
+## Out of scope
+
+- Any Supabase, auth backend, payments, AI gateway calls, real email/SMS, persistence beyond localStorage.
 
 ## Technical notes
 
-- Stack stays Vite + React + Tailwind + shadcn (not Next.js as the prompt suggested — Lovable projects are Vite-based; SSR/Next is not available).
-- New deps: `next-themes`, `framer-motion` (likely already present), `recharts` (already present).
-- New files: `src/components/landing/*` (8 files), `src/components/ai/GreetingGenerator.tsx`, `src/components/ThemeToggle.tsx`, `src/components/ThemeProvider.tsx`, `supabase/functions/generate-greeting/index.ts`.
-- Edited: `src/index.css`, `tailwind.config.ts`, `src/App.tsx`, `src/pages/Index.tsx`, `src/pages/Dashboard.tsx`, `src/components/Navigation.tsx`, `src/components/DashboardStats.tsx`, `index.html` (font links + meta).
-- One new hero image via imagegen (premium quality, JPG).
+- New route files under `src/pages/` (GiftDetail, Cart, Checkout, OrderConfirmation, Orders, ContactDetail, OccasionNew, OccasionDetail, GreetingComposer, TemplateDetail, CreatorDetail, Auth, Onboarding, Notifications, Terms, Privacy).
+- New components under `src/components/checkout/`, `src/components/cart/`, `src/components/composer/`.
+- One `CartContext` + `OrdersContext` in `src/context/`.
+- All routes registered in `src/App.tsx` above the `*` catch-all.
+- Wire dynamic params via `react-router-dom` `useParams`.
+- Confetti via lightweight CSS keyframes (already have `confetti-pop`).
+- Estimated 18 new pages, 10 new components, ~2,500 LOC.
+
+```text
+landing ── auth ── onboarding ── dashboard
+                                  ├─ contacts ── /:id ── occasion/new ── /:id
+                                  ├─ calendar
+                                  ├─ assistant
+                                  ├─ templates ── /:id ─┐
+                                  ├─ greetings/new ◀────┘
+                                  ├─ gifts ── /:slug ── cart ── checkout ── orders/:id
+                                  ├─ creators ── /:id
+                                  ├─ notifications
+                                  └─ settings
+```
+
+I'll execute top-to-bottom. Approve and I'll start with the mock data + cart context, then ship pages in the order above.

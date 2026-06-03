@@ -17,6 +17,7 @@ import { Search, Plus, Mail, Phone, Sparkles, Gift, Users } from "lucide-react";
 import { toast } from "sonner";
 import { mockContacts, type MockContact, type Relationship } from "@/lib/mock-data";
 import { GreetingGenerator } from "@/components/ai/GreetingGenerator";
+import { Link } from "react-router-dom";
 
 const relationships: Relationship[] = ["Family", "Close friend", "Friend", "Colleague", "Partner"];
 
@@ -188,17 +189,17 @@ export const Contacts = () => {
                   return (
                     <Card key={c.id} className="glass-panel group border-0 p-5 transition hover:-translate-y-0.5">
                       <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
+                        <Link to={`/contacts/${c.id}`} className="flex items-center gap-3">
                           <Avatar className="h-11 w-11">
                             <AvatarFallback className="bg-gradient-to-br from-primary to-corten font-semibold text-primary-foreground">
                               {initials}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-display text-base font-semibold leading-tight">{c.name}</p>
+                            <p className="font-display text-base font-semibold leading-tight hover:text-corten">{c.name}</p>
                             <p className="text-xs text-muted-foreground">{c.relationship}</p>
                           </div>
-                        </div>
+                        </Link>
                       </div>
 
                       <div className="mt-4 space-y-1.5 text-xs text-muted-foreground">
