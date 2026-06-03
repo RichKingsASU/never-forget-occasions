@@ -1,11 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Sparkles, Play, Star, Calendar, Gift, Bell } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 import heroImage from "@/assets/hero-image.jpg";
+import { AuroraText } from "@/components/effects/AuroraText";
+import { WordRotate } from "@/components/effects/WordRotate";
+import { BorderBeam } from "@/components/effects/BorderBeam";
 
 export const Hero = () => {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const yText = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  const yImage = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const yFloat1 = useTransform(scrollYProgress, [0, 1], [0, -60]);
+  const yFloat2 = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  const opacityFade = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
   return (
-    <section className="relative isolate overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24">
+    <section ref={ref} className="relative isolate overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24">
       {/* Aurora */}
       <div aria-hidden className="absolute inset-0 -z-10 bg-aurora animate-aurora opacity-90" />
       <div aria-hidden className="absolute inset-0 -z-10 bg-grid opacity-50 dark:opacity-20" />
@@ -27,7 +40,7 @@ export const Hero = () => {
 
       <div className="mx-auto max-w-7xl px-4 md:px-8">
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr,1fr]">
-          <div className="space-y-8 animate-fade-in-up">
+          <motion.div style={{ y: yText, opacity: opacityFade }} className="space-y-8 animate-fade-in-up">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-3.5 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-md">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
@@ -38,8 +51,12 @@ export const Hero = () => {
             </div>
 
             <h1 className="font-display text-5xl font-bold tracking-tight md:text-6xl lg:text-7xl">
-              Celebrate every{" "}
-              <span className="text-gradient-hero">milestone</span> with AI-personalized videos & gifts
+              Never forget a{" "}
+              <WordRotate
+                className="text-gradient-hero"
+                words={["birthday", "milestone", "anniversary", "promotion", "thank you"]}
+              />
+              .<br className="hidden md:block" /> Send an <AuroraText>AI video</AuroraText> &amp; gift in 60 seconds.
             </h1>
 
             <p className="max-w-xl text-lg text-muted-foreground md:text-xl">
@@ -48,12 +65,15 @@ export const Hero = () => {
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button size="lg" variant="hero" asChild className="text-base">
-                <Link to="/dashboard">
-                  Start free trial
-                  <Sparkles className="h-4 w-4" />
-                </Link>
-              </Button>
+              <div className="relative inline-flex overflow-hidden rounded-full">
+                <Button size="lg" variant="hero" asChild className="relative text-base">
+                  <Link to="/dashboard">
+                    Start free trial
+                    <Sparkles className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <BorderBeam size={120} duration={5} />
+              </div>
               <Button size="lg" variant="outline" className="text-base">
                 <Play className="h-4 w-4" />
                 Watch 60s demo
@@ -85,10 +105,10 @@ export const Hero = () => {
                 <span>· 12,400 happy senders</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Visual */}
-          <div className="relative animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
+          <motion.div style={{ y: yImage }} className="relative animate-fade-in-up" >
             <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-hero opacity-30 blur-3xl" />
             <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-premium">
               <img
@@ -101,7 +121,7 @@ export const Hero = () => {
               <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background/95 via-background/30 to-transparent" />
 
               {/* Floating cards */}
-              <div className="absolute left-4 top-4 hidden animate-float rounded-2xl border border-border/60 bg-card/90 px-3 py-2 text-sm shadow-card backdrop-blur-xl sm:block">
+              <motion.div style={{ y: yFloat1 }} className="absolute left-4 top-4 hidden animate-float rounded-2xl border border-border/60 bg-card/90 px-3 py-2 text-sm shadow-card backdrop-blur-xl sm:block">
                 <div className="flex items-center gap-2">
                   <div className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-primary">
                     <Bell className="h-4 w-4 text-primary-foreground" />
@@ -111,11 +131,11 @@ export const Hero = () => {
                     <p className="font-medium leading-tight">Mom's birthday</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
-              <div
+              <motion.div
+                style={{ y: yFloat2, animationDelay: "1.2s" }}
                 className="absolute right-4 top-20 hidden animate-float rounded-2xl border border-border/60 bg-card/90 px-3 py-2 text-sm shadow-card backdrop-blur-xl sm:block"
-                style={{ animationDelay: "1.2s" }}
               >
                 <div className="flex items-center gap-2">
                   <div className="grid h-8 w-8 place-items-center rounded-xl bg-success/15">
@@ -126,7 +146,7 @@ export const Hero = () => {
                     <p className="font-medium leading-tight">Rose bouquet · FTD</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-border/60 bg-card/90 p-4 shadow-card backdrop-blur-xl">
                 <div className="flex items-center justify-between">
@@ -145,7 +165,7 @@ export const Hero = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Press logos */}
