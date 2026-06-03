@@ -1,7 +1,8 @@
 /**
  * supabaseClient.ts
  * ------------------
- * Initializes and exports the singleton Supabase client for the entire app.
+ * Initializes and exports the singleton Supabase client for the entire app,
+ * typed against the generated Database schema.
  *
  * Environment variables are sourced from .env (Vite exposes vars prefixed
  * with VITE_ to the browser via import.meta.env).
@@ -9,9 +10,18 @@
  * Usage:
  *   import { supabase } from '@/lib/supabaseClient';
  *   const { data, error } = await supabase.from('contacts').select('*');
+ *
+ * Type helpers (re-exported from generated types):
+ *   import type { Tables, TablesInsert, Enums } from '@/lib/supabaseClient';
+ *   const contact: Tables<'contacts'> = ...
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from './database.types';
+
+// Re-export generated type helpers for convenience throughout the app
+export type { Database } from './database.types';
+export type { Tables, TablesInsert, TablesUpdate, Enums } from './database.types';
 
 // ── Environment variable validation ────────────────────────────────────────────
 
@@ -26,33 +36,24 @@ if (!supabaseUrl) {
 }
 
 if (!supabaseAnonKey) {
-  // Warn in dev so the app still boots during initial setup; will fail at
-  // runtime on any authenticated request.
   console.warn(
     '[supabaseClient] VITE_SUPABASE_ANON_KEY is not set. ' +
     'All Supabase requests will fail until the key is provided in .env.'
   );
 }
 
-// ── Client singleton ────────────────────────────────────────────────────────────
+// ── Typed client singleton ──────────────────────────────────────────────────────
 
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey ?? '', {
-  auth: {
-    // Persist the session in localStorage so the user stays logged in
-    // across page refreshes.
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-});
-
-// ── Convenience type re-exports (extend as you add generated DB types) ──────────
-
-// Once you run `supabase gen types typescript`, replace `Database` below with
-// the generated type and pass it as a generic to createClient<Database>().
-//
-// Example:
-//   import { Database } from '@/types/supabase';
-//   export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const supabase: SupabaseClient<Database> = createClient<Database>(
+  supabaseUrl,
+  supabaseAnonKey ?? '',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  }
+);
 
 export default supabase;
