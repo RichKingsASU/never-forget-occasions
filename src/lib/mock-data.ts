@@ -1,44 +1,5 @@
 export type Relationship = "Family" | "Close friend" | "Friend" | "Colleague" | "Partner";
 
-export interface MockContact {
-  id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  relationship: Relationship;
-  giftPreferences: string[];
-}
-
-export interface MockOccasion {
-  id: string;
-  contactId: string;
-  contactName: string;
-  event: string;
-  date: string; // ISO yyyy-mm-dd
-  channel: "Email" | "SMS" | "Video Mail" | "Slack";
-  status: "scheduled" | "queued" | "draft";
-  hasGift: boolean;
-  giftName?: string;
-}
-
-export const mockContacts: MockContact[] = [
-  { id: "c1", name: "Sarah Chen",  email: "sarah@example.com", phone: "+1 415 555 0142", relationship: "Close friend", giftPreferences: ["Coffee", "Books", "Plants"] },
-  { id: "c2", name: "John & Lisa", email: "johnlisa@example.com",                         relationship: "Family",       giftPreferences: ["Wine", "Experiences"] },
-  { id: "c3", name: "Mom",         phone: "+1 312 555 0199",                              relationship: "Family",       giftPreferences: ["Flowers", "Spa"] },
-  { id: "c4", name: "Devon K.",    email: "devon@workmail.co",                            relationship: "Colleague",    giftPreferences: ["Food delivery", "Tech"] },
-  { id: "c5", name: "Priya N.",    email: "priya.n@example.com",                          relationship: "Friend",       giftPreferences: ["Home goods", "Candles"] },
-  { id: "c6", name: "Marcus T.",   email: "marcus@example.com", phone: "+1 646 555 0117", relationship: "Close friend", giftPreferences: ["Vinyl", "Whiskey"] },
-];
-
-export const mockOccasions: MockOccasion[] = [
-  { id: "o1", contactId: "c1", contactName: "Sarah Chen",   event: "Birthday",     date: "2026-06-15", channel: "Email",      status: "scheduled", hasGift: true,  giftName: "Starbucks Gift Card" },
-  { id: "o2", contactId: "c2", contactName: "John & Lisa",  event: "Anniversary",  date: "2026-06-22", channel: "Email",      status: "scheduled", hasGift: true,  giftName: "Rose Bouquet" },
-  { id: "o3", contactId: "c3", contactName: "Mom",          event: "Mother's Day", date: "2026-06-08", channel: "Video Mail", status: "draft",     hasGift: false },
-  { id: "o4", contactId: "c4", contactName: "Devon K.",     event: "Promotion",    date: "2026-06-28", channel: "Slack",      status: "queued",    hasGift: true,  giftName: "DoorDash $30" },
-  { id: "o5", contactId: "c5", contactName: "Priya N.",     event: "Housewarming", date: "2026-07-04", channel: "Email",      status: "draft",     hasGift: false },
-  { id: "o6", contactId: "c6", contactName: "Marcus T.",    event: "Birthday",     date: "2026-06-11", channel: "SMS",        status: "scheduled", hasGift: true,  giftName: "Vinyl Subscription" },
-];
-
 export const formatDate = (iso: string) =>
   new Date(iso + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 
@@ -89,8 +50,6 @@ export const mockGifts: MockGift[] = [
 ];
 
 export const findGift = (slug: string) => mockGifts.find((g) => g.slug === slug);
-export const findContact = (id: string) => mockContacts.find((c) => c.id === id);
-export const findOccasion = (id: string) => mockOccasions.find((o) => o.id === id);
 
 export const formatCurrency = (n: number) =>
   new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -114,29 +73,6 @@ mockGifts.forEach((g) => {
     { author: "Sam D.",    rating: 5, date: "2 months ago", body: "Repeat buyer. NFO makes this the easiest gifting in my life." },
   ];
 });
-
-// ─────────────────────── ORDERS (seed) ───────────────────────
-
-export type OrderStatus = "placed" | "preparing" | "shipped" | "delivered";
-export interface OrderItem { giftId: string; name: string; variant?: string; qty: number; price: number; hue: string; }
-export interface MockOrder {
-  id: string;
-  date: string;
-  status: OrderStatus;
-  items: OrderItem[];
-  recipient: { name: string; address?: string };
-  greeting?: string;
-  channel?: string;
-  total: number;
-  tracking?: string;
-}
-
-export const seedOrders: MockOrder[] = [
-  { id: "NFO-26-0411", date: "2026-05-28", status: "delivered", items: [{ giftId:"g2", name:"Premium Rose Bouquet", variant:"Dozen", qty:1, price:65, hue:"from-corten/50 to-primary/30" }], recipient:{ name:"Sarah Chen", address:"Brooklyn, NY" }, greeting:"Happy birthday, S — to slow mornings and loud laughter.", channel:"Email · SMS", total: 71, tracking:"1Z999AA10123456784" },
-  { id: "NFO-26-0399", date: "2026-05-12", status: "shipped",   items: [{ giftId:"g6", name:"Trade Coffee 3-Bag Sampler", variant:"Whole bean", qty:1, price:36, hue:"from-amber-700/40 to-corten/30" }], recipient:{ name:"Devon K.", address:"Austin, TX" }, greeting:"Congrats on the promo. The team's lucky to have you.", channel:"Slack", total: 39, tracking:"1Z999AA10123456712" },
-  { id: "NFO-26-0376", date: "2026-04-30", status: "preparing", items: [{ giftId:"g9", name:"City Spa Day", qty:1, price:220, hue:"from-primary/40 to-accent/30" }], recipient:{ name:"Mom" }, channel:"Email", total: 220 },
-  { id: "NFO-26-0341", date: "2026-04-12", status: "delivered", items: [{ giftId:"g7", name:"Sara's Patisserie Box", qty:1, price:68, hue:"from-amber-500/40 to-corten/30" }], recipient:{ name:"Priya N.", address:"Chicago, IL" }, channel:"Email", total: 73, tracking:"1Z999AA10123456701" },
-];
 
 // ─────────────────────── NOTIFICATIONS ───────────────────────
 

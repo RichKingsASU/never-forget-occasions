@@ -4,23 +4,52 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Calendar as CalIcon, Sparkles, Send, Copy, Trash2, Package, ChevronRight } from "lucide-react";
-import { findOccasion, formatDate, daysUntil } from "@/lib/mock-data";
+import { ArrowLeft, Calendar as CalIcon, Sparkles, Send, Copy, Trash2, Package, ChevronRight, Loader2 } from "lucide-react";
+import { formatDate, daysUntil } from "@/lib/mock-data";
 import { GreetingGenerator } from "@/components/ai/GreetingGenerator";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useOccasion, useDeleteOccasion } from "@/hooks/useOccasions";
+import { useContact } from "@/hooks/useContacts";
 
 export const OccasionDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const o = id ? findOccasion(id) : undefined;
-  if (!o) return <Navigate to="/calendar" replace />;
+
+  const { data: o, isLoading: occasionLoading, error: occasionError } = useOccasion(id);
+  const { data: contact, isLoading: contactLoading } = useContact(o?.contact_id);
+
+  const deleteOccasionMutation = useDeleteOccasion();
+
+  if (occasionLoading || contactLoading) {
+    return (
+      <div className="dark min-h-dvh bg-background text-foreground flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-corten" />
+      </div>
+    );
+  }
+
+  if (occasionError || !o || !contact) {
+    toast.error("Occasion not found");
+    return <Navigate to="/calendar" replace />;
+  }
 
   const d = daysUntil(o.date);
   const pct = Math.max(0, Math.min(100, 100 - (d / 60) * 100));
+
+  const handleDelete = async () => {
+    try {
+      await deleteOccasionMutation.mutateAsync({ id: o.id, contactId: o.contact_id });
+      toast.success("Occasion deleted");
+      navigate("/calendar");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Failed to delete occasion");
+    }
+  };
 
   return (
     <div className="dark min-h-dvh bg-background text-foreground">
@@ -48,8 +77,8 @@ export const OccasionDetail = () => {
                     </div>
                   </div>
                   <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-corten">{o.event}</p>
-                    <h1 className="font-display text-3xl font-semibold tracking-tight">{o.contactName}</h1>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-corten">{o.type}</p>
+                    <h1 className="font-display text-3xl font-semibold tracking-tight">{contact.name}</h1>
                     <p className="mt-1 text-sm text-muted-foreground">{formatDate(o.date)} · in {d} days</p>
                   </div>
                 </div>
@@ -67,7 +96,7 @@ export const OccasionDetail = () => {
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => { toast("Occasion deleted"); navigate("/calendar"); }}>Delete</AlertDialogAction>
+                        <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -78,12 +107,12 @@ export const OccasionDetail = () => {
             <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
               <Card className="glass-panel border-0 p-6">
                 <h2 className="font-display text-lg font-semibold">Scheduled greeting</h2>
-                <p className="mt-2 text-xs text-muted-foreground">{o.channel} · sends 09:00 local on {formatDate(o.date)}</p>
+                <p className="mt-2 text-xs text-muted-foreground">Email · sends 09:00 local on {formatDate(o.date)}</p>
                 <p className="mt-4 whitespace-pre-wrap rounded-lg border border-border/60 bg-background/40 p-4 text-sm leading-relaxed">
-                  {`Hi ${o.contactName.split(" ")[0]},\n\nA small note on your ${o.event.toLowerCase()} — thinking of you and hoping today brings you a little more of what you love. Here's to you.\n\nWith love.`}
+                  {`Hi ${contact.name.split(" ")[0]},\n\nA small note on your ${o.type.toLowerCase()} — thinking of you and hoping today brings you a little more of what you love. Here's to you.\n\nWith love.`}
                 </p>
                 <div className="mt-4 flex gap-2">
-                  <GreetingGenerator initialRecipient={o.contactName} initialOccasion={o.event} trigger={
+                  <GreetingGenerator initialRecipient={contact.name} initialOccasion={o.type} trigger={
                     <Button variant="outline"><Sparkles className="h-4 w-4" /> Edit with AI</Button>
                   } />
                   <Button className="bg-corten text-white hover:bg-corten/90" onClick={() => toast.success("Greeting dispatched now")}><Send className="h-4 w-4" /> Dispatch now</Button>
@@ -96,16 +125,12 @@ export const OccasionDetail = () => {
                 </Card>
                 <Card className="glass-panel border-0 p-5">
                   <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">Attached gift</p>
-                  {o.hasGift ? (
-                    <div className="mt-2 flex items-center gap-2 text-sm"><Package className="h-4 w-4 text-success" /> {o.giftName}</div>
-                  ) : (
-                    <>
-                      <p className="mt-2 text-sm text-muted-foreground">No gift attached.</p>
-                      <Button asChild size="sm" className="mt-3 w-full bg-corten text-white hover:bg-corten/90">
-                        <Link to="/gifts">Browse gifts <ChevronRight className="h-3.5 w-3.5" /></Link>
-                      </Button>
-                    </>
-                  )}
+                  <>
+                    <p className="mt-2 text-sm text-muted-foreground">No gift attached.</p>
+                    <Button asChild size="sm" className="mt-3 w-full bg-corten text-white hover:bg-corten/90">
+                      <Link to="/gifts">Browse gifts <ChevronRight className="h-3.5 w-3.5" /></Link>
+                    </Button>
+                  </>
                 </Card>
               </div>
             </div>

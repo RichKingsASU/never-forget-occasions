@@ -13,16 +13,18 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Search, Plus, Mail, Phone, Sparkles, Gift, Users } from "lucide-react";
+import { Search, Plus, Mail, Phone, Sparkles, Gift, Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { mockContacts, type MockContact, type Relationship } from "@/lib/mock-data";
 import { GreetingGenerator } from "@/components/ai/GreetingGenerator";
 import { Link } from "react-router-dom";
+import { useContacts, useCreateContact } from "@/hooks/useContacts";
 
-const relationships: Relationship[] = ["Family", "Close friend", "Friend", "Colleague", "Partner"];
+const relationships = ["Family", "Close friend", "Friend", "Colleague", "Partner"] as const;
+type Relationship = typeof relationships[number];
 
 export const Contacts = () => {
-  const [contacts, setContacts] = useState<MockContact[]>(mockContacts);
+  const { data: contacts = [], isLoading, error } = useContacts();
+  const createContactMutation = useCreateContact();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Relationship | "all">("all");
   const [open, setOpen] = useState(false);
@@ -45,24 +47,36 @@ export const Contacts = () => {
     return { total, family: by("Family"), close: by("Close friend"), colleagues: by("Colleague") };
   }, [contacts]);
 
-  const submit = () => {
+  const submit = async () => {
     if (!draft.name.trim()) {
       toast.error("Name is required");
       return;
     }
-    const c: MockContact = {
-      id: `c${Date.now()}`,
-      name: draft.name.trim(),
-      email: draft.email.trim() || undefined,
-      phone: draft.phone.trim() || undefined,
-      relationship: draft.relationship,
-      giftPreferences: draft.prefs.split(",").map((s) => s.trim()).filter(Boolean),
-    };
-    setContacts((prev) => [c, ...prev]);
-    setDraft({ name: "", email: "", phone: "", relationship: "Friend", prefs: "" });
-    setOpen(false);
-    toast.success(`${c.name} added to your circle`);
+    
+    try {
+      await createContactMutation.mutateAsync({
+        name: draft.name.trim(),
+        email: draft.email.trim() || null,
+        phone: draft.phone.trim() || null,
+        relationship: draft.relationship,
+        // The profiles/contacts table has no giftPreferences array, let's look at the schema.
+        // It has name, email, phone, relationship, notes, avatar_url. 
+        // We will store preferences in notes or similar. For now, since notes matches text, let's map prefs to notes.
+        notes: draft.prefs.trim() || null,
+      });
+
+      toast.success(`${draft.name.trim()} added to your circle`);
+      setDraft({ name: "", email: "", phone: "", relationship: "Friend", prefs: "" });
+      setOpen(false);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to create contact");
+    }
   };
+
+  if (error) {
+    toast.error("Error loading contacts");
+  }
 
   return (
     <div className="dark min-h-dvh bg-background text-foreground">
@@ -136,8 +150,20 @@ export const Contacts = () => {
                   </div>
                   <DialogFooter>
                     <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={submit} className="bg-corten text-white hover:bg-corten/90">
-                      <Plus className="h-4 w-4" /> Add contact
+                    <Button 
+                      onClick={submit} 
+                      className="bg-corten text-white hover:bg-corten/90"
+                      disabled={createContactMutation.isPending}
+                    >
+                      {createContactMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Adding...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-4 w-4" /> Add contact
+                        </>
+                      )}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -172,7 +198,11 @@ export const Contacts = () => {
               </div>
             </div>
 
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              <div className="flex h-64 items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-corten" />
+              </div>
+            ) : filtered.length === 0 ? (
               <Card className="glass-panel border-0 p-12 text-center">
                 <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-corten/15 text-corten">
                   <Users className="h-5 w-5" />
@@ -186,6 +216,7 @@ export const Contacts = () => {
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {filtered.map((c) => {
                   const initials = c.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+                  const giftPreferences = c.notes ? c.notes.split(",").map((s) => s.trim()).filter(Boolean) : [];
                   return (
                     <Card key={c.id} className="glass-panel group border-0 p-5 transition hover:-translate-y-0.5">
                       <div className="flex items-start justify-between">
@@ -211,11 +242,11 @@ export const Contacts = () => {
                         )}
                       </div>
 
-                      {c.giftPreferences.length > 0 && (
+                      {giftPreferences.length > 0 && (
                         <div className="mt-4">
                           <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">loves</p>
                           <div className="mt-1.5 flex flex-wrap gap-1">
-                            {c.giftPreferences.map((p) => (
+                            {giftPreferences.map((p) => (
                               <Badge key={p} variant="secondary" className="border-border/60 bg-background/40 text-[10px]">
                                 {p}
                               </Badge>

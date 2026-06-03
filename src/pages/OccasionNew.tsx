@@ -9,16 +9,22 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, ArrowRight, Calendar as CalIcon, Check, Mail, Sparkles, Gift as GiftIcon } from "lucide-react";
-import { mockContacts, mockGifts, formatCurrency } from "@/lib/mock-data";
+import { ArrowLeft, ArrowRight, Calendar as CalIcon, Check, Mail, Sparkles, Gift as GiftIcon, Loader2 } from "lucide-react";
+import { mockGifts, formatCurrency } from "@/lib/mock-data";
 import { toast } from "sonner";
+import { useContacts } from "@/hooks/useContacts";
+import { useCreateOccasion } from "@/hooks/useOccasions";
 
 const STEPS = ["Recipient", "Event", "Schedule", "Greeting", "Gift", "Review"];
 
 export const OccasionNew = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [contactId, setContactId] = useState(mockContacts[0]?.id ?? "");
+
+  const { data: contacts = [], isLoading: contactsLoading } = useContacts();
+  const createOccasionMutation = useCreateOccasion();
+
+  const [contactId, setContactId] = useState("");
   const [event, setEvent] = useState("Birthday");
   const [date, setDate] = useState("");
   const [recurrence, setRecurrence] = useState<"none"|"yearly"|"monthly">("yearly");
@@ -26,7 +32,12 @@ export const OccasionNew = () => {
   const [tone, setTone] = useState("Heartfelt");
   const [giftId, setGiftId] = useState<string | null>(null);
 
-  const contact = mockContacts.find((c) => c.id === contactId);
+  // Pick first contact once loaded if none selected
+  if (!contactId && contacts.length > 0) {
+    setContactId(contacts[0].id);
+  }
+
+  const contact = contacts.find((c) => c.id === contactId);
   const gift = giftId ? mockGifts.find((g) => g.id === giftId) : null;
 
   const next = () => {
@@ -36,9 +47,22 @@ export const OccasionNew = () => {
     setStep((s) => Math.min(5, s + 1));
   };
 
-  const submit = () => {
-    toast.success(`${event} scheduled for ${contact?.name}`);
-    navigate("/calendar");
+  const submit = async () => {
+    if (!contactId || !date || !event) return;
+    try {
+      await createOccasionMutation.mutateAsync({
+        contact_id: contactId,
+        type: event,
+        date: date,
+        recurring: recurrence !== "none",
+        status: "draft",
+      });
+      toast.success(`${event} scheduled for ${contact?.name}`);
+      navigate("/calendar");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to schedule occasion");
+    }
   };
 
   return (
@@ -76,17 +100,30 @@ export const OccasionNew = () => {
               {step === 0 && (
                 <div className="space-y-3">
                   <h2 className="font-display text-lg font-semibold">Who's it for?</h2>
-                  <RadioGroup value={contactId} onValueChange={setContactId} className="space-y-2">
-                    {mockContacts.map((c) => (
-                      <label key={c.id} className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition ${contactId === c.id ? "border-corten/60 bg-corten/5" : "border-border/60"}`}>
-                        <RadioGroupItem value={c.id} />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{c.name}</p>
-                          <p className="text-xs text-muted-foreground">{c.relationship}</p>
-                        </div>
-                      </label>
-                    ))}
-                  </RadioGroup>
+                  {contactsLoading ? (
+                    <div className="flex h-32 items-center justify-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-corten" />
+                    </div>
+                  ) : contacts.length === 0 ? (
+                    <div className="p-6 text-center">
+                      <p className="text-sm text-muted-foreground">You don't have any contacts yet.</p>
+                      <Button asChild size="sm" className="mt-3 bg-corten text-white hover:bg-corten/90">
+                        <Link to="/contacts">Add a Contact</Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    <RadioGroup value={contactId} onValueChange={setContactId} className="space-y-2">
+                      {contacts.map((c) => (
+                        <label key={c.id} className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition ${contactId === c.id ? "border-corten/60 bg-corten/5" : "border-border/60"}`}>
+                          <RadioGroupItem value={c.id} />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{c.name}</p>
+                            <p className="text-xs text-muted-foreground">{c.relationship}</p>
+                          </div>
+                        </label>
+                      ))}
+                    </RadioGroup>
+                  )}
                 </div>
               )}
 
@@ -198,7 +235,21 @@ export const OccasionNew = () => {
               {step < STEPS.length - 1 ? (
                 <Button onClick={next} className="bg-corten text-white hover:bg-corten/90">Continue <ArrowRight className="h-4 w-4" /></Button>
               ) : (
-                <Button onClick={submit} className="bg-corten text-white hover:bg-corten/90"><Check className="h-4 w-4" /> Schedule occasion</Button>
+                <Button 
+                  onClick={submit} 
+                  className="bg-corten text-white hover:bg-corten/90"
+                  disabled={createOccasionMutation.isPending}
+                >
+                  {createOccasionMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Scheduling...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4" /> Schedule occasion
+                    </>
+                  )}
+                </Button>
               )}
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate, useParams, Navigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
@@ -13,46 +13,103 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, Phone, ArrowLeft, Plus, Sparkles, Gift, Edit, Trash2, Package, Calendar as CalIcon } from "lucide-react";
-import { findContact, mockOccasions, formatDate, daysUntil, type MockOccasion } from "@/lib/mock-data";
+import { Mail, Phone, ArrowLeft, Plus, Sparkles, Gift, Edit, Trash2, Package, Loader2, Calendar as CalIcon } from "lucide-react";
+import { formatDate, daysUntil } from "@/lib/mock-data";
 import { useOrders } from "@/context/OrdersContext";
 import { GreetingGenerator } from "@/components/ai/GreetingGenerator";
 import { toast } from "sonner";
+import { useContact, useDeleteContact, useUpdateContact } from "@/hooks/useContacts";
+import { useOccasionsByContact, useCreateOccasion } from "@/hooks/useOccasions";
 
 export const ContactDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const contact = id ? findContact(id) : undefined;
+
+  const { data: contact, isLoading: contactLoading, error: contactError } = useContact(id);
+  const { data: occasions = [], isLoading: occasionsLoading } = useOccasionsByContact(id);
+  
+  const deleteContactMutation = useDeleteContact();
+  const updateContactMutation = useUpdateContact();
+  const createOccasionMutation = useCreateOccasion();
+
   const { orders } = useOrders();
 
-  const [occasions, setOccasions] = useState<MockOccasion[]>(
-    () => mockOccasions.filter((o) => o.contactId === id)
-  );
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState({ event: "Birthday", date: "", channel: "Email" as MockOccasion["channel"] });
+  const [draft, setDraft] = useState({ event: "Birthday", date: "", channel: "Email" });
+  const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    if (contact) {
+      setNotes(contact.notes || "");
+    }
+  }, [contact]);
 
   const myOrders = useMemo(() => orders.filter((o) => o.recipient.name === contact?.name), [orders, contact]);
 
-  if (!contact) return <Navigate to="/contacts" replace />;
+  if (contactLoading) {
+    return (
+      <div className="dark min-h-dvh bg-background text-foreground flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-corten" />
+      </div>
+    );
+  }
+
+  if (contactError || !contact) {
+    toast.error("Contact not found");
+    return <Navigate to="/contacts" replace />;
+  }
 
   const initials = contact.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+  const giftPreferences = contact.notes ? contact.notes.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
-  const addOccasion = () => {
+  const addOccasion = async () => {
     if (!draft.date) { toast.error("Pick a date"); return; }
-    const o: MockOccasion = {
-      id: `o_${Date.now()}`,
-      contactId: contact.id,
-      contactName: contact.name,
-      event: draft.event,
-      date: draft.date,
-      channel: draft.channel,
-      status: "draft",
-      hasGift: false,
-    };
-    setOccasions((p) => [o, ...p]);
-    setOpen(false);
-    setDraft({ event: "Birthday", date: "", channel: "Email" });
-    toast.success(`${draft.event} added for ${contact.name}`);
+    try {
+      await createOccasionMutation.mutateAsync({
+        contact_id: contact.id,
+        type: draft.event,
+        date: draft.date,
+        // Since there is no channel column in initial_schema on occasions,
+        // let's look at the database.types.ts: occasions has (id, contact_id, date, recurring, reminder_days, status, type, created_at, updated_at, user_id).
+        // Standard schema doesn't have a channel column here. So we only pass the columns it has.
+        // We will default recurring to true for Birthday/Anniversary and false otherwise.
+        recurring: ["Birthday", "Anniversary"].includes(draft.event),
+        status: "draft",
+      });
+
+      setOpen(false);
+      setDraft({ event: "Birthday", date: "", channel: "Email" });
+      toast.success(`${draft.event} added for ${contact.name}`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to add occasion");
+    }
+  };
+
+  const saveNotes = async () => {
+    try {
+      await updateContactMutation.mutateAsync({
+        id: contact.id,
+        input: { notes },
+      });
+      toast.success("Notes saved");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to save notes");
+    }
+  };
+
+  const deleteSelf = async () => {
+    if (window.confirm(`Are you sure you want to delete ${contact.name}?`)) {
+      try {
+        await deleteContactMutation.mutateAsync(contact.id);
+        toast.success(`${contact.name} removed`);
+        navigate("/contacts");
+      } catch (err: any) {
+        console.error(err);
+        toast.error("Failed to delete contact");
+      }
+    }
   };
 
   return (
@@ -87,18 +144,18 @@ export const ContactDetail = () => {
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={() => toast.info("Edit coming soon")}><Edit className="h-3.5 w-3.5" /> Edit</Button>
-                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive" onClick={() => { toast.success(`${contact.name} removed`); navigate("/contacts"); }}>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive" onClick={deleteSelf}>
                     <Trash2 className="h-3.5 w-3.5" /> Delete
                   </Button>
                 </div>
               </div>
-              {contact.giftPreferences.length > 0 && (
+              {giftPreferences.length > 0 && (
                 <>
                   <Separator className="my-5 bg-border/50" />
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Loves</p>
                     <div className="mt-2 flex flex-wrap gap-1">
-                      {contact.giftPreferences.map((p) => (
+                      {giftPreferences.map((p) => (
                         <Badge key={p} variant="secondary" className="border-border/60 bg-background/40">{p}</Badge>
                       ))}
                     </div>
@@ -117,7 +174,9 @@ export const ContactDetail = () => {
               <TabsContent value="occasions" className="m-0">
                 <Card className="glass-panel border-0 p-0">
                   <div className="flex items-center justify-between border-b border-border/60 p-4">
-                    <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{occasions.length} occasion{occasions.length===1?"":"s"}</p>
+                    <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                      {occasionsLoading ? "Loading..." : `${occasions.length} occasion${occasions.length===1?"":"s"}`}
+                    </p>
                     <Dialog open={open} onOpenChange={setOpen}>
                       <DialogTrigger asChild>
                         <Button size="sm" className="bg-corten text-white hover:bg-corten/90"><Plus className="h-4 w-4" /> Add occasion</Button>
@@ -138,7 +197,7 @@ export const ContactDetail = () => {
                           </div>
                           <div className="grid gap-1.5"><Label htmlFor="o-date">Date</Label><Input id="o-date" type="date" value={draft.date} onChange={(e)=>setDraft({...draft,date:e.target.value})} /></div>
                           <div className="grid gap-1.5"><Label>Channel</Label>
-                            <Select value={draft.channel} onValueChange={(v)=>setDraft({...draft,channel:v as MockOccasion["channel"]})}>
+                            <Select value={draft.channel} onValueChange={(v)=>setDraft({...draft,channel:v})}>
                               <SelectTrigger><SelectValue /></SelectTrigger>
                               <SelectContent>
                                 {["Email","SMS","Video Mail","Slack"].map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -153,7 +212,11 @@ export const ContactDetail = () => {
                       </DialogContent>
                     </Dialog>
                   </div>
-                  {occasions.length === 0 ? (
+                  {occasionsLoading ? (
+                    <div className="p-10 flex items-center justify-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-corten" />
+                    </div>
+                  ) : occasions.length === 0 ? (
                     <div className="p-10 text-center">
                       <CalIcon className="mx-auto h-8 w-8 text-muted-foreground" />
                       <p className="mt-3 font-display text-base font-semibold">No occasions yet</p>
@@ -169,10 +232,10 @@ export const ContactDetail = () => {
                               <span className="font-display text-base font-semibold tabular-nums">{new Date(o.date+"T00:00:00").getDate()}</span>
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium">{o.event}</p>
-                              <p className="text-xs text-muted-foreground">{formatDate(o.date)} · {o.channel}{d >= 0 ? ` · in ${d}d` : ""}</p>
+                              <p className="text-sm font-medium">{o.type}</p>
+                              <p className="text-xs text-muted-foreground">{formatDate(o.date)} {d >= 0 ? ` · in ${d}d` : ""}</p>
                             </div>
-                            <GreetingGenerator initialRecipient={contact.name} initialOccasion={o.event} trigger={
+                            <GreetingGenerator initialRecipient={contact.name} initialOccasion={o.type} trigger={
                               <Button size="sm" variant="ghost" className="border border-border/60"><Sparkles className="h-3.5 w-3.5" /> Draft</Button>
                             } />
                           </li>
@@ -196,7 +259,7 @@ export const ContactDetail = () => {
                       {myOrders.map((o) => (
                         <li key={o.id}>
                           <Link to={`/orders/${o.id}`} className="flex items-center gap-4 p-4 hover:bg-card/40">
-                            <div className={`h-12 w-12 rounded-lg bg-gradient-to-br ${o.items[0].hue}`} />
+                            <div className={`h-12 w-12 rounded-lg bg-gradient-to-br ${o.items[0]?.hue || "from-primary to-secondary"}`} />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium">{o.items.map(i=>i.name).join(", ")}</p>
                               <p className="text-xs text-muted-foreground">{formatDate(o.date)} · {o.status}</p>
@@ -227,9 +290,17 @@ export const ContactDetail = () => {
                     rows={6}
                     placeholder={`Little things about ${contact.name.split(" ")[0]} — favorite coffee order, inside jokes, allergies, anything you want me to remember.`}
                     className="w-full resize-none rounded-lg border border-border/60 bg-background/40 p-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-corten/40"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
                   />
                   <div className="mt-3 flex justify-end">
-                    <Button className="bg-corten text-white hover:bg-corten/90" onClick={() => toast.success("Notes saved")}>Save notes</Button>
+                    <Button 
+                      className="bg-corten text-white hover:bg-corten/90" 
+                      onClick={saveNotes}
+                      disabled={updateContactMutation.isPending}
+                    >
+                      {updateContactMutation.isPending ? "Saving..." : "Save notes"}
+                    </Button>
                   </div>
                 </Card>
               </TabsContent>
