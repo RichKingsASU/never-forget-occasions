@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
-import { DEFAULT_PALETTE_ID, getPalette, PALETTES, type Palette, type PaletteTokens } from "@/lib/palettes";
+import {
+  DEFAULT_PALETTE_ID,
+  getPalette,
+  PALETTES,
+  type Palette,
+  type PaletteTokens,
+} from "@/lib/palettes";
 
 interface PaletteCtx {
   paletteId: string;
@@ -19,13 +25,13 @@ const applyTokens = (tokens: PaletteTokens) => {
   const map: [keyof PaletteTokens, string][] = [
     ["background", "--background"],
     ["foreground", "--foreground"],
-    ["primary",    "--primary"],
-    ["primaryFg",  "--primary-foreground"],
-    ["accent",     "--accent"],
-    ["accentFg",   "--accent-foreground"],
-    ["card",       "--card"],
-    ["border",     "--border"],
-    ["muted",      "--muted"],
+    ["primary", "--primary"],
+    ["primaryFg", "--primary-foreground"],
+    ["accent", "--accent"],
+    ["accentFg", "--accent-foreground"],
+    ["card", "--card"],
+    ["border", "--border"],
+    ["muted", "--muted"],
   ];
   map.forEach(([k, v]) => {
     const val = tokens[k];
@@ -33,10 +39,18 @@ const applyTokens = (tokens: PaletteTokens) => {
   });
 };
 
-export const PaletteProvider = ({ children }: { children: React.ReactNode }) => {
+export const PaletteProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const { resolvedTheme, setTheme } = useTheme();
   const [paletteId, setPaletteIdState] = useState<string>(() => {
-    try { return localStorage.getItem(KEY) ?? DEFAULT_PALETTE_ID; } catch { return DEFAULT_PALETTE_ID; }
+    try {
+      return localStorage.getItem(KEY) ?? DEFAULT_PALETTE_ID;
+    } catch {
+      return DEFAULT_PALETTE_ID;
+    }
   });
 
   const palette = getPalette(paletteId);
@@ -49,13 +63,26 @@ export const PaletteProvider = ({ children }: { children: React.ReactNode }) => 
 
   const setPaletteId = (id: string) => {
     setPaletteIdState(id);
-    try { localStorage.setItem(KEY, id); } catch {}
+    try {
+      localStorage.setItem(KEY, id);
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn("Unable to persist palette preference", error);
+      }
+    }
   };
 
-  const value = useMemo<PaletteCtx>(() => ({
-    paletteId, palette, palettes: PALETTES, setPaletteId,
-    mode, setMode: (m) => setTheme(m),
-  }), [paletteId, palette, mode, setTheme]);
+  const value = useMemo<PaletteCtx>(
+    () => ({
+      paletteId,
+      palette,
+      palettes: PALETTES,
+      setPaletteId,
+      mode,
+      setMode: (m) => setTheme(m),
+    }),
+    [paletteId, palette, mode, setTheme],
+  );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 };
