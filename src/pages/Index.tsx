@@ -10,12 +10,15 @@ import { CTA } from "@/components/landing/CTA";
 import { Footer } from "@/components/landing/Footer";
 import { AnimatedSection } from "@/components/AnimatedSection";
 import { NoiseOverlay } from "@/components/NoiseOverlay";
+import { SkipToContent } from "@/components/SkipToContent";
+import { StickyMobileCTA } from "@/components/StickyMobileCTA";
 
 const Index = () => (
   <div className="relative min-h-screen bg-mesh">
+    <SkipToContent />
     <NoiseOverlay />
     <LandingNav />
-    <main>
+    <main id="main-content">
       <Hero />
       <AnimatedSection animation="fade-up" delay={0}><HowItWorks /></AnimatedSection>
       <AnimatedSection animation="fade-up" delay={75}><FeatureBento /></AnimatedSection>
@@ -26,6 +29,7 @@ const Index = () => (
       <AnimatedSection animation="scale" delay={75}><CTA /></AnimatedSection>
     </main>
     <AnimatedSection animation="fade-up"><Footer /></AnimatedSection>
+    <StickyMobileCTA />
   </div>
 );
 

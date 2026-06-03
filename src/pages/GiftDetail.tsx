@@ -15,6 +15,7 @@ import {
   Star, Plus, Minus, ShoppingBag, Zap, Share2, Truck, Shield, RotateCcw, ChevronRight, Clock,
 } from "lucide-react";
 import { findGift, mockGifts, mockReviews, formatCurrency, estimateDelivery } from "@/lib/mock-data";
+import { motion } from "framer-motion";
 import { useCart } from "@/context/CartContext";
 import { CartSheet } from "@/components/cart/CartSheet";
 import { toast } from "sonner";
@@ -77,7 +78,10 @@ export const GiftDetail = () => {
             <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">
               {/* Gallery */}
               <div className="space-y-3">
-                <div className={`relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br ${gradients[imgIdx]}`}>
+                <motion.div
+                  layoutId={`gift-hero-${gift.slug}`}
+                  className={`relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br ${gradients[imgIdx]}`}
+                >
                   <div className="absolute inset-0 bg-canvas-grid opacity-25" />
                   <div className="absolute left-4 top-4 flex gap-1.5">
                     {gift.badges?.map((b) => (
@@ -88,7 +92,7 @@ export const GiftDetail = () => {
                     onClick={() => { navigator.clipboard.writeText(window.location.href); toast.success("Link copied"); }} aria-label="Share">
                     <Share2 className="h-4 w-4" />
                   </Button>
-                </div>
+                </motion.div>
                 <div className="grid grid-cols-4 gap-2">
                   {gradients.map((g, i) => (
                     <button key={i} onClick={() => setImgIdx(i)}

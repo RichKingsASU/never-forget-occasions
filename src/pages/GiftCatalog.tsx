@@ -12,6 +12,8 @@ import {
 import { Search, Star, Plus, Filter, X, ShoppingBag, Gift as GiftIcon, Clock } from "lucide-react";
 import { mockGifts, formatCurrency, type GiftCategory } from "@/lib/mock-data";
 import { useCart } from "@/context/CartContext";
+import { motion } from "framer-motion";
+import { TiltCard } from "@/components/effects/TiltCard";
 import { CartSheet } from "@/components/cart/CartSheet";
 import { toast } from "sonner";
 
@@ -176,9 +178,13 @@ export const GiftCatalog = () => {
                 ) : (
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {filtered.map((g) => (
-                      <Card key={g.id} className="glass-panel group overflow-hidden border-0 p-0 transition hover:-translate-y-0.5">
+                      <TiltCard key={g.id} max={5}>
+                      <Card className="glass-panel group overflow-hidden border-0 p-0 transition hover:-translate-y-0.5">
                         <Link to={`/gifts/${g.slug}`} className="block">
-                          <div className={`relative aspect-[4/3] overflow-hidden bg-gradient-to-br ${g.hue}`}>
+                          <motion.div
+                            layoutId={`gift-hero-${g.slug}`}
+                            className={`relative aspect-[4/3] overflow-hidden bg-gradient-to-br ${g.hue}`}
+                          >
                             <div className="absolute inset-0 bg-canvas-grid opacity-25" />
                             <div className="absolute left-3 top-3 flex gap-1.5">
                               {g.badges?.map((b) => (
@@ -193,7 +199,7 @@ export const GiftCatalog = () => {
                             <Badge className="absolute right-3 top-3 h-5 border-0 bg-background/70 px-1.5 font-mono text-[10px] text-foreground backdrop-blur">
                               <Clock className="mr-1 h-3 w-3" /> {g.deliveryTime}
                             </Badge>
-                          </div>
+                          </motion.div>
                         </Link>
                         <div className="p-4">
                           <div className="flex items-center justify-between gap-2">
@@ -223,6 +229,7 @@ export const GiftCatalog = () => {
                           </div>
                         </div>
                       </Card>
+                      </TiltCard>
                     ))}
                   </div>
                 )}
