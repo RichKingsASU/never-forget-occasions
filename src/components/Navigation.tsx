@@ -1,72 +1,93 @@
 import { Button } from "@/components/ui/button";
-import { Heart, Video, Users, Calendar, Settings, LogOut, Gift } from "lucide-react";
+import {
+  Heart,
+  Video,
+  Users,
+  Calendar,
+  Settings,
+  LogOut,
+  Gift,
+  LayoutDashboard,
+  Sparkles,
+  Store,
+} from "lucide-react";
 import { Link } from "react-router-dom";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface NavigationProps {
   currentPage?: string;
 }
 
-export const Navigation = ({ currentPage = "dashboard" }: NavigationProps) => {
-  const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: Heart },
-    { id: "contacts", label: "Contacts", icon: Users },
-    { id: "occasions", label: "Occasions", icon: Calendar },
-    { id: "templates", label: "Templates", icon: Video },
-    { id: "gifts", label: "Gift Catalog", icon: Gift },
-    { id: "settings", label: "Settings", icon: Settings },
-  ];
+const items = [
+  { id: "dashboard", to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "calendar", to: "/dashboard", label: "Calendar", icon: Calendar },
+  { id: "contacts", to: "/dashboard", label: "Contacts", icon: Users },
+  { id: "assistant", to: "/dashboard", label: "AI Assistant", icon: Sparkles },
+  { id: "templates", to: "/dashboard", label: "Video Templates", icon: Video },
+  { id: "gifts", to: "/gifts", label: "Gift Marketplace", icon: Gift },
+  { id: "creators", to: "/gifts", label: "Creators", icon: Store },
+  { id: "settings", to: "/dashboard", label: "Settings", icon: Settings },
+];
 
-  return (
-    <nav className="fixed left-0 top-0 h-screen w-64 bg-card border-r border-border shadow-card">
-      <div className="p-6">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-            <Heart className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Never Forget Occasions
-            </h1>
-            <p className="text-xs text-muted-foreground">Celebrate every moment</p>
-          </div>
+export const Navigation = ({ currentPage = "dashboard" }: NavigationProps) => (
+  <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r border-border bg-sidebar lg:flex lg:flex-col">
+    <div className="flex-1 overflow-y-auto p-5">
+      <Link to="/" className="mb-7 flex items-center gap-2.5">
+        <div className="grid h-9 w-9 place-items-center rounded-2xl bg-gradient-primary shadow-soft">
+          <Heart className="h-4 w-4 text-primary-foreground" fill="currentColor" />
         </div>
+        <div>
+          <p className="font-display text-base font-bold leading-tight">
+            Never Forget <span className="text-gradient">Occasions</span>
+          </p>
+          <p className="text-[11px] text-muted-foreground">Celebrate every moment</p>
+        </div>
+      </Link>
 
-        <div className="space-y-2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentPage === item.id;
-            
-            return (
-              <button
-                key={item.id}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-smooth ${
-                  isActive
-                    ? "bg-gradient-secondary text-primary shadow-soft"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <nav className="space-y-1" aria-label="Dashboard">
+        {items.map((it) => {
+          const Icon = it.icon;
+          const active = currentPage === it.id;
+          return (
+            <Link
+              key={it.id}
+              to={it.to}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                active
+                  ? "bg-gradient-primary text-primary-foreground shadow-soft"
+                  : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {it.label}
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
 
-      <div className="absolute bottom-6 left-6 right-6">
-        <div className="p-4 bg-gradient-secondary rounded-lg mb-4">
-          <h3 className="font-semibold text-sm mb-1">Free Plan</h3>
-          <p className="text-xs text-muted-foreground mb-2">5/10 videos sent this month</p>
-          <Button size="sm" variant="gradient" className="w-full">
-            Upgrade to Pro
-          </Button>
+    <div className="border-t border-border p-5">
+      <div className="mb-3 overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-primary/10 via-card to-accent/10 p-4">
+        <div className="flex items-center justify-between">
+          <p className="font-display text-sm font-semibold">Free plan</p>
+          <span className="rounded-full bg-card px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+            5 / 10
+          </span>
         </div>
-        
-        <Button variant="ghost" size="sm" className="w-full justify-start">
-          <LogOut className="w-4 h-4" />
-          Sign Out
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+          <div className="h-full w-1/2 rounded-full bg-gradient-primary" />
+        </div>
+        <Button size="sm" variant="hero" className="mt-3 w-full">
+          Upgrade to Pro
         </Button>
       </div>
-    </nav>
-  );
-};
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" size="sm" className="justify-start">
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </Button>
+        <ThemeToggle />
+      </div>
+    </div>
+  </aside>
+);
