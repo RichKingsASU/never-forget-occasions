@@ -1,4 +1,4 @@
-import phoneAsset from "@/assets/phone-calendar.png.asset.json";
+import phoneAsset from "@/assets/features-collage.png.asset.json";
 import {
   Video,
   Bell,

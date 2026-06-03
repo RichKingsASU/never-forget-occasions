@@ -6,7 +6,7 @@ import { useRef } from "react";
 import { AuroraText } from "@/components/effects/AuroraText";
 import { WordRotate } from "@/components/effects/WordRotate";
 import { BorderBeam } from "@/components/effects/BorderBeam";
-import heroAsset from "@/assets/hero-gift.png.asset.json";
+import heroAsset from "@/assets/hero-celebrate.png.asset.json";
 
 export const Hero = () => {
   const ref = useRef<HTMLElement>(null);
