@@ -25,14 +25,6 @@ export default defineConfig(({ mode }) => ({
           }
 
           if (
-            id.includes("react") ||
-            id.includes("react-dom") ||
-            id.includes("react-router-dom")
-          ) {
-            return "react-vendor";
-          }
-
-          if (
             id.includes("@radix-ui") ||
             id.includes("cmdk") ||
             id.includes("lucide-react") ||
