@@ -9,6 +9,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { PaletteProvider } from "@/context/PaletteContext";
 import { CartProvider } from "@/context/CartContext";
 import { OrdersProvider } from "@/context/OrdersContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import { Dashboard } from "./pages/Dashboard";
 import { GiftCatalog } from "./pages/GiftCatalog";
@@ -46,27 +48,125 @@ const AnimatedRoutes = () => {
         <Routes location={location}>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route 
+            path="/onboarding" 
+            element={
+              <ProtectedRoute>
+                <Onboarding />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/gifts" element={<GiftCatalog />} />
           <Route path="/gifts/:slug" element={<GiftDetail />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/orders/:id" element={<OrderDetail />} />
-          <Route path="/contacts" element={<Contacts />} />
-          <Route path="/contacts/:id" element={<ContactDetail />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/occasions/new" element={<OccasionNew />} />
-          <Route path="/occasions/:id" element={<OccasionDetail />} />
-          <Route path="/assistant" element={<Assistant />} />
-          <Route path="/greetings/new" element={<GreetingComposer />} />
+          <Route 
+            path="/checkout" 
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/orders" 
+            element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/orders/:id" 
+            element={
+              <ProtectedRoute>
+                <OrderDetail />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/contacts" 
+            element={
+              <ProtectedRoute>
+                <Contacts />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/contacts/:id" 
+            element={
+              <ProtectedRoute>
+                <ContactDetail />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/calendar" 
+            element={
+              <ProtectedRoute>
+                <Calendar />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/occasions/new" 
+            element={
+              <ProtectedRoute>
+                <OccasionNew />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/occasions/:id" 
+            element={
+              <ProtectedRoute>
+                <OccasionDetail />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/assistant" 
+            element={
+              <ProtectedRoute>
+                <Assistant />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/greetings/new" 
+            element={
+              <ProtectedRoute>
+                <GreetingComposer />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/templates" element={<Templates />} />
           <Route path="/templates/:id" element={<TemplateDetail />} />
           <Route path="/creators" element={<Creators />} />
           <Route path="/creators/:id" element={<CreatorDetail />} />
-          <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route 
+            path="/notifications" 
+            element={
+              <ProtectedRoute>
+                <NotificationsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/settings" 
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/legal/terms" element={<Terms />} />
           <Route path="/legal/privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
@@ -80,18 +180,20 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <PaletteProvider>
-      <OrdersProvider>
-        <CartProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <CommandPalette />
-              <AnimatedRoutes />
-            </BrowserRouter>
-          </TooltipProvider>
-        </CartProvider>
-      </OrdersProvider>
+        <AuthProvider>
+          <OrdersProvider>
+            <CartProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <CommandPalette />
+                  <AnimatedRoutes />
+                </BrowserRouter>
+              </TooltipProvider>
+            </CartProvider>
+          </OrdersProvider>
+        </AuthProvider>
       </PaletteProvider>
     </ThemeProvider>
   </QueryClientProvider>

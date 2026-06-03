@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,17 +6,58 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Check, Upload, Sparkles, Users, Calendar, Gift } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabaseClient";
 
 const steps = ["Profile", "Tone", "Import contacts", "First occasion"] as const;
 
 export const Onboarding = () => {
   const nav = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
+  
+  // Profile fields
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [timezone, setTimezone] = useState("America/Los_Angeles");
+  
+  // Tone selection
   const [tone, setTone] = useState<string>("Warm");
   const [imported, setImported] = useState(0);
 
+  // Initialize display name from user metadata if available
+  useEffect(() => {
+    if (user?.user_metadata?.display_name) {
+      const parts = user.user_metadata.display_name.split(" ");
+      setFirstName(parts[0] || "");
+      setLastName(parts.slice(1).join(" ") || "");
+    }
+  }, [user]);
+
   const next = () => (step === steps.length - 1 ? finish() : setStep(step + 1));
-  const finish = () => {
+  
+  const finish = async () => {
+    if (user) {
+      const displayName = `${firstName} ${lastName}`.trim();
+      
+      // Save onboarding info to profile
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          display_name: displayName || null,
+          timezone: timezone,
+          // Since there is no tone column in profile in standard schema (or is it in metadata?),
+          // we can save it to metadata or profiles raw updates if column exists.
+          // Let's check the schema: the audit shows profiles has (id, email, display_name, avatar_url, timezone, created_at, updated_at).
+          // We can update timezone and display_name.
+        })
+        .eq("id", user.id);
+
+      if (error) {
+        console.error("Error updating profile during onboarding:", error);
+      }
+    }
+    
     toast.success("You're all set");
     nav("/dashboard");
   };
@@ -55,10 +96,31 @@ export const Onboarding = () => {
             {step === 0 && (
               <>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2"><Label>First name</Label><Input defaultValue="Alex" /></div>
-                  <div className="space-y-2"><Label>Last name</Label><Input defaultValue="Rivera" /></div>
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First name</Label>
+                    <Input 
+                      id="firstName" 
+                      value={firstName} 
+                      onChange={(e) => setFirstName(e.target.value)} 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last name</Label>
+                    <Input 
+                      id="lastName" 
+                      value={lastName} 
+                      onChange={(e) => setLastName(e.target.value)} 
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2"><Label>Time zone</Label><Input defaultValue="America/Los_Angeles" /></div>
+                <div className="space-y-2">
+                  <Label htmlFor="timezone">Time zone</Label>
+                  <Input 
+                    id="timezone" 
+                    value={timezone} 
+                    onChange={(e) => setTimezone(e.target.value)} 
+                  />
+                </div>
               </>
             )}
 

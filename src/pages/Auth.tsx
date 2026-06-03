@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,16 +10,76 @@ import { toast } from "sonner";
 
 export const Auth = () => {
   const nav = useNavigate();
+  const location = useLocation();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  const submit = (e: React.FormEvent, mode: "sign-in" | "sign-up") => {
+  // Form states
+  const [signInEmail, setSignInEmail] = useState("");
+  const [signInPassword, setSignInPassword] = useState("");
+  
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+
+  // Determine where to redirect after authentication
+  const from = (location.state as any)?.from?.pathname || "/dashboard";
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const { error } = await signIn(signInEmail, signInPassword);
+      if (error) {
+        toast.error(error.message || "Failed to sign in");
+      } else {
+        toast.success("Welcome back!");
+        nav(from, { replace: true });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("An unexpected error occurred");
+    } finally {
       setLoading(false);
-      toast.success(mode === "sign-up" ? "Welcome to NFO" : "Welcome back");
-      nav(mode === "sign-up" ? "/onboarding" : "/dashboard");
-    }, 700);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const displayName = `${firstName} ${lastName}`.trim();
+      const { error, needsConfirmation } = await signUp(signUpEmail, signUpPassword, displayName);
+      if (error) {
+        toast.error(error.message || "Failed to create account");
+      } else if (needsConfirmation) {
+        toast.success("Please check your email to confirm your account!");
+      } else {
+        toast.success("Welcome to NFO!");
+        nav("/onboarding");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        toast.error(error.message || "Google Sign-In failed");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Google Sign-In failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -79,23 +140,36 @@ export const Auth = () => {
                 <h2 className="font-display text-2xl font-bold">Welcome back</h2>
                 <p className="text-sm text-muted-foreground">Sign in to your NFO account</p>
               </header>
-              <form onSubmit={(e) => submit(e, "sign-in")} className="space-y-4">
+              <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="you@example.com" required />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="you@example.com" 
+                    value={signInEmail}
+                    onChange={(e) => setSignInEmail(e.target.value)}
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
                     <button type="button" className="text-xs text-muted-foreground hover:text-foreground">Forgot?</button>
                   </div>
-                  <Input id="password" type="password" required />
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    value={signInPassword}
+                    onChange={(e) => setSignInPassword(e.target.value)}
+                    required 
+                  />
                 </div>
                 <Button type="submit" variant="hero" className="w-full" disabled={loading}>
                   {loading ? "Signing in…" : "Sign in"}
                 </Button>
               </form>
-              <SocialAuth />
+              <SocialAuth onGoogleClick={handleGoogleSignIn} disabled={loading} />
             </TabsContent>
 
             <TabsContent value="sign-up" className="space-y-5 pt-6">
@@ -103,31 +177,54 @@ export const Auth = () => {
                 <h2 className="font-display text-2xl font-bold">Start celebrating</h2>
                 <p className="text-sm text-muted-foreground">7-day free trial. No card required.</p>
               </header>
-              <form onSubmit={(e) => submit(e, "sign-up")} className="space-y-4">
+              <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="fn">First name</Label>
-                    <Input id="fn" required />
+                    <Input 
+                      id="fn" 
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required 
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="ln">Last name</Label>
-                    <Input id="ln" required />
+                    <Input 
+                      id="ln" 
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required 
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="em">Work email</Label>
-                  <Input id="em" type="email" required />
+                  <Input 
+                    id="em" 
+                    type="email" 
+                    value={signUpEmail}
+                    onChange={(e) => setSignUpEmail(e.target.value)}
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="pw">Password</Label>
-                  <Input id="pw" type="password" minLength={8} required />
+                  <Input 
+                    id="pw" 
+                    type="password" 
+                    minLength={8} 
+                    value={signUpPassword}
+                    onChange={(e) => setSignUpPassword(e.target.value)}
+                    required 
+                  />
                   <p className="text-xs text-muted-foreground">At least 8 characters.</p>
                 </div>
                 <Button type="submit" variant="hero" className="w-full" disabled={loading}>
                   {loading ? "Creating account…" : "Create account"}
                 </Button>
               </form>
-              <SocialAuth />
+              <SocialAuth onGoogleClick={handleGoogleSignIn} disabled={loading} />
               <p className="text-center text-xs text-muted-foreground">
                 By continuing you agree to our{" "}
                 <Link to="/legal/terms" className="underline hover:text-foreground">Terms</Link> and{" "}
@@ -141,7 +238,7 @@ export const Auth = () => {
   );
 };
 
-const SocialAuth = () => (
+const SocialAuth = ({ onGoogleClick, disabled }: { onGoogleClick: () => void; disabled?: boolean }) => (
   <div className="space-y-3">
     <div className="relative">
       <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
@@ -150,8 +247,8 @@ const SocialAuth = () => (
       </div>
     </div>
     <div className="grid grid-cols-2 gap-2">
-      <Button variant="outline" type="button">Google</Button>
-      <Button variant="outline" type="button">Apple</Button>
+      <Button variant="outline" type="button" onClick={onGoogleClick} disabled={disabled}>Google</Button>
+      <Button variant="outline" type="button" disabled={disabled}>Apple</Button>
     </div>
   </div>
 );
