@@ -1,5 +1,5 @@
 import { Heart, Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -14,6 +14,8 @@ const links = [
 export const LandingNav = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -22,10 +24,20 @@ export const LandingNav = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const scrollToSection = (href: string) => {
+    const id = href.replace("#", "");
+    if (location.pathname !== "/") {
+      navigate(`/#${id}`);
+      return;
+    }
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled ? "border-b border-border/60 bg-background/70 backdrop-blur-xl" : ""
+        scrolled ? "border-b border-border/60 bg-background/60 backdrop-blur-xl" : ""
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-8">
@@ -43,13 +55,13 @@ export const LandingNav = () => {
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
           {links.map((l) => (
-            <a
+            <button
               key={l.href}
-              href={l.href}
+              onClick={() => scrollToSection(l.href)}
               className="rounded-full px-4 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
             >
               {l.label}
-            </a>
+            </button>
           ))}
         </nav>
 
@@ -77,14 +89,16 @@ export const LandingNav = () => {
         <div className="border-t border-border bg-background/95 backdrop-blur-xl md:hidden">
           <div className="space-y-1 px-4 py-4">
             {links.map((l) => (
-              <a
+              <button
                 key={l.href}
-                href={l.href}
-                onClick={() => setOpen(false)}
-                className="block rounded-xl px-4 py-3 text-sm hover:bg-muted"
+                onClick={() => {
+                  setOpen(false);
+                  scrollToSection(l.href);
+                }}
+                className="block w-full rounded-xl px-4 py-3 text-left text-sm hover:bg-muted"
               >
                 {l.label}
-              </a>
+              </button>
             ))}
             <Button variant="hero" asChild className="mt-2 w-full">
               <Link to="/dashboard">Start free</Link>

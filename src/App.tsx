@@ -2,7 +2,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { PageTransition } from "@/components/PageTransition";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PaletteProvider } from "@/context/PaletteContext";
 import { CartProvider } from "@/context/CartContext";
@@ -36,6 +38,44 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <PageTransition key={location.pathname}>
+        <Routes location={location}>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/gifts" element={<GiftCatalog />} />
+          <Route path="/gifts/:slug" element={<GiftDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/:id" element={<OrderDetail />} />
+          <Route path="/contacts" element={<Contacts />} />
+          <Route path="/contacts/:id" element={<ContactDetail />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/occasions/new" element={<OccasionNew />} />
+          <Route path="/occasions/:id" element={<OccasionDetail />} />
+          <Route path="/assistant" element={<Assistant />} />
+          <Route path="/greetings/new" element={<GreetingComposer />} />
+          <Route path="/templates" element={<Templates />} />
+          <Route path="/templates/:id" element={<TemplateDetail />} />
+          <Route path="/creators" element={<Creators />} />
+          <Route path="/creators/:id" element={<CreatorDetail />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/legal/terms" element={<Terms />} />
+          <Route path="/legal/privacy" element={<Privacy />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </PageTransition>
+    </AnimatePresence>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
@@ -47,35 +87,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <CommandPalette />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/gifts" element={<GiftCatalog />} />
-                <Route path="/gifts/:slug" element={<GiftDetail />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/orders/:id" element={<OrderDetail />} />
-                <Route path="/contacts" element={<Contacts />} />
-                <Route path="/contacts/:id" element={<ContactDetail />} />
-                <Route path="/calendar" element={<Calendar />} />
-                <Route path="/occasions/new" element={<OccasionNew />} />
-                <Route path="/occasions/:id" element={<OccasionDetail />} />
-                <Route path="/assistant" element={<Assistant />} />
-                <Route path="/greetings/new" element={<GreetingComposer />} />
-                <Route path="/templates" element={<Templates />} />
-                <Route path="/templates/:id" element={<TemplateDetail />} />
-                <Route path="/creators" element={<Creators />} />
-                <Route path="/creators/:id" element={<CreatorDetail />} />
-                <Route path="/notifications" element={<NotificationsPage />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/legal/terms" element={<Terms />} />
-                <Route path="/legal/privacy" element={<Privacy />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <AnimatedRoutes />
             </BrowserRouter>
           </TooltipProvider>
         </CartProvider>

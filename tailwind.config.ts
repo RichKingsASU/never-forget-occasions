@@ -20,7 +20,7 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
-				display: ['"Inter Tight"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				display: ['"Plus Jakarta Sans"', '"Inter Tight"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -89,7 +89,9 @@ export default {
 				'soft': 'var(--shadow-soft)',
 				'glow': 'var(--shadow-glow)',
 				'card': 'var(--shadow-card)',
-				'premium': 'var(--shadow-premium)'
+				'premium': 'var(--shadow-premium)',
+				'primary-tint': 'var(--shadow-primary)',
+				'primary-tint-lg': 'var(--shadow-primary-lg)'
 			},
 			transitionTimingFunction: {
 				'smooth': 'var(--transition-smooth)',
@@ -157,6 +159,22 @@ export default {
 				'confetti': {
 					'0%': { transform: 'translateY(0) rotate(0)', opacity: '1' },
 					'100%': { transform: 'translateY(120vh) rotate(720deg)', opacity: '0' }
+				},
+				'fade-in-left': {
+					'0%': { opacity: '0', transform: 'translateX(-24px)' },
+					'100%': { opacity: '1', transform: 'translateX(0)' }
+				},
+				'fade-in-right': {
+					'0%': { opacity: '0', transform: 'translateX(24px)' },
+					'100%': { opacity: '1', transform: 'translateX(0)' }
+				},
+				'scale-fade-in': {
+					'0%': { opacity: '0', transform: 'scale(0.94)' },
+					'100%': { opacity: '1', transform: 'scale(1)' }
+				},
+				'glow-pulse': {
+					'0%, 100%': { boxShadow: '0 0 0 0 hsl(var(--primary) / 0.45)' },
+					'50%': { boxShadow: '0 0 24px 6px hsl(var(--primary) / 0.35)' }
 				}
 			},
 			animation: {
@@ -164,6 +182,10 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.5s ease-out both',
 				'fade-in-up': 'fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
+				'fade-in-left': 'fade-in-left 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
+				'fade-in-right': 'fade-in-right 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
+				'scale-fade-in': 'scale-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both',
+				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
 				'scale-in': 'scale-in 0.4s ease-out both',
 				'float': 'float 6s ease-in-out infinite',
 				'float-slow': 'float-slow 9s ease-in-out infinite',
