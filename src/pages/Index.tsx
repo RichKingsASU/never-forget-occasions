@@ -2,6 +2,7 @@ import { LandingNav } from "@/components/landing/LandingNav";
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { FeatureBento } from "@/components/landing/FeatureBento";
+import { Occasions } from "@/components/landing/Occasions";
 import { MarketplacePreview } from "@/components/landing/MarketplacePreview";
 import { SocialProof } from "@/components/landing/SocialProof";
 import { Pricing } from "@/components/landing/Pricing";
@@ -22,6 +23,7 @@ const Index = () => (
       <Hero />
       <AnimatedSection animation="fade-up" delay={0}><HowItWorks /></AnimatedSection>
       <AnimatedSection animation="fade-up" delay={75}><FeatureBento /></AnimatedSection>
+      <AnimatedSection animation="fade-up" delay={75}><Occasions /></AnimatedSection>
       <AnimatedSection animation="fade-up" delay={75}><MarketplacePreview /></AnimatedSection>
       <AnimatedSection animation="fade-up" delay={75}><SocialProof /></AnimatedSection>
       <AnimatedSection animation="scale" delay={75}><Pricing /></AnimatedSection>
