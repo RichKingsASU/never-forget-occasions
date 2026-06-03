@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AppHeader } from "@/components/AppHeader";
+import { MobileNav } from "@/components/MobileNav";
 
 interface NavigationProps {
   currentPage?: string;
@@ -30,6 +32,9 @@ const items = [
 ];
 
 export const Navigation = ({ currentPage = "dashboard" }: NavigationProps) => (
+  <>
+    <AppHeader />
+    <MobileNav />
   <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r border-border bg-sidebar lg:flex lg:flex-col">
     <div className="flex-1 overflow-y-auto p-5">
       <Link to="/" className="mb-7 flex items-center gap-2.5">
@@ -90,4 +95,5 @@ export const Navigation = ({ currentPage = "dashboard" }: NavigationProps) => (
       </div>
     </div>
   </aside>
+  </>
 );
