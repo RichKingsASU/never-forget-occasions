@@ -3,16 +3,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { TiltCard } from "@/components/effects/TiltCard";
+import spaAsset from "@/assets/gift-spa.png.asset.json";
+import chocolatesAsset from "@/assets/gift-chocolates.png.asset.json";
+import giftCardsAsset from "@/assets/gift-cards.png.asset.json";
 
 const items = [
-  { name: "Garden Rose Bouquet", maker: "FTD Studio", price: 64, rating: 4.9, tag: "Flowers", tone: "from-rose-400/30 to-pink-300/20", h: "h-72" },
+  { name: "Serenity Spa Ritual Box", maker: "Aura Spa", price: 128, rating: 4.9, tag: "Wellness", tone: "from-rose-400/30 to-pink-300/20", h: "h-80", img: spaAsset.url },
   { name: "Starbucks Gift Card", maker: "Starbucks", price: 25, rating: 4.8, tag: "Gift Cards", tone: "from-emerald-400/30 to-teal-300/20", h: "h-56" },
   { name: "Tasting Menu for Two", maker: "Eleven Tables", price: 220, rating: 5.0, tag: "Experiences", tone: "from-amber-400/30 to-orange-300/20", h: "h-64" },
-  { name: "Hand-thrown Ceramic Vase", maker: "Studio Iris", price: 88, rating: 4.7, tag: "Handmade", tone: "from-sky-400/30 to-indigo-300/20", h: "h-80" },
+  { name: "Le Cœur Chocolatier Box", maker: "Bruxelles Atelier", price: 64, rating: 4.9, tag: "Treats", tone: "from-amber-400/30 to-orange-300/20", h: "h-80", img: chocolatesAsset.url },
   { name: "Custom Portrait Print", maker: "Atelier Noor", price: 145, rating: 4.9, tag: "Personalized Art", tone: "from-fuchsia-400/30 to-purple-300/20", h: "h-60" },
-  { name: "Artisan Coffee Box", maker: "Kindred Roasters", price: 42, rating: 4.8, tag: "Subscription", tone: "from-orange-400/30 to-rose-300/20", h: "h-72" },
+  { name: "Designer Gift Card Suite", maker: "Curated Brands", price: 50, rating: 4.8, tag: "Gift Cards", tone: "from-violet-400/30 to-indigo-300/20", h: "h-72", img: giftCardsAsset.url },
   { name: "Hot-air Balloon Ride", maker: "Skyline Co.", price: 350, rating: 4.9, tag: "Luxury", tone: "from-violet-400/30 to-indigo-300/20", h: "h-64" },
-  { name: "Belgian Chocolate Tower", maker: "Godiva", price: 58, rating: 4.6, tag: "Treats", tone: "from-amber-400/30 to-yellow-300/20", h: "h-56" },
+  { name: "Garden Rose Bouquet", maker: "FTD Studio", price: 64, rating: 4.6, tag: "Flowers", tone: "from-rose-400/30 to-pink-300/20", h: "h-56" },
 ];
 
 export const MarketplacePreview = () => (
@@ -41,6 +44,14 @@ export const MarketplacePreview = () => (
               <div className={`relative ${it.h} overflow-hidden`}>
                 <div className={`absolute inset-0 bg-gradient-to-br ${it.tone}`} />
                 <div className="absolute inset-0 bg-aurora opacity-40" />
+                {it.img && (
+                  <img
+                    src={it.img}
+                    alt={it.name}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                )}
                 <button
                   aria-label={`Save ${it.name} to wishlist`}
                   className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-background/80 backdrop-blur transition hover:bg-background"
