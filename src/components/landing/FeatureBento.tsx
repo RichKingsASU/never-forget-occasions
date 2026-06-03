@@ -1,4 +1,3 @@
-import phoneAsset from "@/assets/features-collage.png.asset.json";
 import {
   Video,
   Bell,
@@ -38,7 +37,7 @@ export const FeatureBento = () => (
 
           <div className="relative mt-6 overflow-hidden rounded-2xl border border-border/60 bg-background/40">
             <img
-              src={phoneAsset.url}
+              src="/images/features-collage.png"
               alt="Floating iPhone showing NFO calendar with reminder, video, and gift cards"
               className="mx-auto h-64 w-full object-contain"
               loading="lazy"

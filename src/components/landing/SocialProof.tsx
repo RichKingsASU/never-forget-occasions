@@ -3,7 +3,6 @@ import { Quote } from "lucide-react";
 import { CountUp } from "@/components/effects/CountUp";
 import { Marquee } from "@/components/effects/Marquee";
 import { ActivityTicker } from "@/components/effects/ActivityTicker";
-import classroomAsset from "@/assets/social-classroom.png.asset.json";
 
 const stats = [
   { value: 2_400_000, suffix: "+", label: "Occasions remembered", format: "compact" as const },
@@ -90,7 +89,7 @@ export const SocialProof = () => (
 
       <div className="mt-12 overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-premium">
         <img
-          src={classroomAsset.url}
+          src="/images/social-classroom.png"
           alt="Student opening a thoughtful gift bag from a friend in a lecture hall"
           className="aspect-[21/9] w-full object-cover"
           loading="lazy"
