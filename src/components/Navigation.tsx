@@ -20,8 +20,8 @@ interface NavigationProps {
 
 const items = [
   { id: "dashboard", to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "calendar", to: "/dashboard", label: "Calendar", icon: Calendar },
-  { id: "contacts", to: "/dashboard", label: "Contacts", icon: Users },
+  { id: "calendar", to: "/calendar", label: "Calendar", icon: Calendar },
+  { id: "contacts", to: "/contacts", label: "Contacts", icon: Users },
   { id: "assistant", to: "/dashboard", label: "AI Assistant", icon: Sparkles },
   { id: "templates", to: "/dashboard", label: "Video Templates", icon: Video },
   { id: "gifts", to: "/gifts", label: "Gift Marketplace", icon: Gift },
