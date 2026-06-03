@@ -1,5 +1,5 @@
 import { CalendarHeart, Wand2, Send } from "lucide-react";
-import storyboardAsset from "@/assets/nfo-storyboard.png.asset.json";
+import storyboardAsset from "@/assets/nfo-storyboard-v2.png.asset.json";
 
 const steps = [
   {
