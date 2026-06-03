@@ -6,13 +6,16 @@ import { TiltCard } from "@/components/effects/TiltCard";
 import spaAsset from "@/assets/gift-spa.png.asset.json";
 import chocolatesAsset from "@/assets/gift-chocolates.png.asset.json";
 import giftCardsAsset from "@/assets/gift-cards.png.asset.json";
+import artisanBoxAsset from "@/assets/gift-artisan-box.png.asset.json";
 
-const items = [
+type Item = { name: string; maker: string; price: number; rating: number; tag: string; tone: string; h: string; img?: string };
+
+const items: Item[] = [
   { name: "Serenity Spa Ritual Box", maker: "Aura Spa", price: 128, rating: 4.9, tag: "Wellness", tone: "from-rose-400/30 to-pink-300/20", h: "h-80", img: spaAsset.url },
   { name: "Starbucks Gift Card", maker: "Starbucks", price: 25, rating: 4.8, tag: "Gift Cards", tone: "from-emerald-400/30 to-teal-300/20", h: "h-56" },
   { name: "Tasting Menu for Two", maker: "Eleven Tables", price: 220, rating: 5.0, tag: "Experiences", tone: "from-amber-400/30 to-orange-300/20", h: "h-64" },
   { name: "Le Cœur Chocolatier Box", maker: "Bruxelles Atelier", price: 64, rating: 4.9, tag: "Treats", tone: "from-amber-400/30 to-orange-300/20", h: "h-80", img: chocolatesAsset.url },
-  { name: "Custom Portrait Print", maker: "Atelier Noor", price: 145, rating: 4.9, tag: "Personalized Art", tone: "from-fuchsia-400/30 to-purple-300/20", h: "h-60" },
+  { name: "The Artisan Collection Box", maker: "Curated Co.", price: 145, rating: 4.9, tag: "Curated Boxes", tone: "from-stone-400/30 to-amber-300/20", h: "h-80", img: artisanBoxAsset.url },
   { name: "Designer Gift Card Suite", maker: "Curated Brands", price: 50, rating: 4.8, tag: "Gift Cards", tone: "from-violet-400/30 to-indigo-300/20", h: "h-72", img: giftCardsAsset.url },
   { name: "Hot-air Balloon Ride", maker: "Skyline Co.", price: 350, rating: 4.9, tag: "Luxury", tone: "from-violet-400/30 to-indigo-300/20", h: "h-64" },
   { name: "Garden Rose Bouquet", maker: "FTD Studio", price: 64, rating: 4.6, tag: "Flowers", tone: "from-rose-400/30 to-pink-300/20", h: "h-56" },
