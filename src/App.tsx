@@ -9,6 +9,10 @@ import { Dashboard } from "./pages/Dashboard";
 import { GiftCatalog } from "./pages/GiftCatalog";
 import { Contacts } from "./pages/Contacts";
 import { Calendar } from "./pages/Calendar";
+import { Assistant } from "./pages/Assistant";
+import { Templates } from "./pages/Templates";
+import { Creators } from "./pages/Creators";
+import { Settings } from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +30,10 @@ const App = () => (
             <Route path="/gifts" element={<GiftCatalog />} />
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/calendar" element={<Calendar />} />
+            <Route path="/assistant" element={<Assistant />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/creators" element={<Creators />} />
+            <Route path="/settings" element={<Settings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
