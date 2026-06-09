@@ -8,3 +8,23 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Security headers (audit finding M-1).
+# CSP is derived from the only external origins the app actually loads:
+#   • Supabase project (REST/auth/storage over https, realtime over wss)
+#       referenced via VITE_SUPABASE_URL — see .env.example.
+#       NOTE: keep this host in sync with the deployed VITE_SUPABASE_URL.
+#   • Google Fonts stylesheet (fonts.googleapis.com) and font files
+#       (fonts.gstatic.com) — see index.html.
+# style-src includes 'unsafe-inline' because the app injects inline styles at
+# runtime (e.g. src/components/ui/chart.tsx) and pulls the Google Fonts
+# stylesheet. script-src stays 'self' (no inline scripts; Vite emits module
+# scripts from /assets).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob: https://zmipvtryvnwrbzqnludu.supabase.co; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://zmipvtryvnwrbzqnludu.supabase.co wss://zmipvtryvnwrbzqnludu.supabase.co"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
