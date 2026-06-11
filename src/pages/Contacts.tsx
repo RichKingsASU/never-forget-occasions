@@ -68,9 +68,9 @@ export const Contacts = () => {
       toast.success(`${draft.name.trim()} added to your circle`);
       setDraft({ name: "", email: "", phone: "", relationship: "Friend", prefs: "" });
       setOpen(false);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "Failed to create contact");
+      toast.error(err instanceof Error ? err.message : "Failed to create contact");
     }
   };
 

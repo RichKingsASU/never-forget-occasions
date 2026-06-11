@@ -24,7 +24,8 @@ export const Auth = () => {
   const [lastName, setLastName] = useState("");
 
   // Determine where to redirect after authentication
-  const from = (location.state as any)?.from?.pathname || "/dashboard";
+  const state = location.state as { from?: { pathname?: string } } | null;
+  const from = state?.from?.pathname || "/dashboard";
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();

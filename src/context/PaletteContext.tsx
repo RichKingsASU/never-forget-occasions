@@ -49,7 +49,11 @@ export const PaletteProvider = ({ children }: { children: React.ReactNode }) => 
 
   const setPaletteId = (id: string) => {
     setPaletteIdState(id);
-    try { localStorage.setItem(KEY, id); } catch {}
+    try {
+      localStorage.setItem(KEY, id);
+    } catch (e) {
+      console.warn("LocalStorage access failed:", e);
+    }
   };
 
   const value = useMemo<PaletteCtx>(() => ({

@@ -80,9 +80,9 @@ export const ContactDetail = () => {
       setOpen(false);
       setDraft({ event: "Birthday", date: "", channel: "Email" });
       toast.success(`${draft.event} added for ${contact.name}`);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "Failed to add occasion");
+      toast.error(err instanceof Error ? err.message : "Failed to add occasion");
     }
   };
 
@@ -93,9 +93,9 @@ export const ContactDetail = () => {
         input: { notes },
       });
       toast.success("Notes saved");
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "Failed to save notes");
+      toast.error(err instanceof Error ? err.message : "Failed to save notes");
     }
   };
 
@@ -105,7 +105,7 @@ export const ContactDetail = () => {
         await deleteContactMutation.mutateAsync(contact.id);
         toast.success(`${contact.name} removed`);
         navigate("/contacts");
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
         toast.error("Failed to delete contact");
       }

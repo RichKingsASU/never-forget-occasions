@@ -59,9 +59,9 @@ export const OccasionNew = () => {
       });
       toast.success(`${event} scheduled for ${contact?.name}`);
       navigate("/calendar");
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || "Failed to schedule occasion");
+      toast.error(err instanceof Error ? err.message : "Failed to schedule occasion");
     }
   };
 

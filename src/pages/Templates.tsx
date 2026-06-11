@@ -49,7 +49,11 @@ export const Templates = () => {
   const toggleFav = (id: string) => {
     setFavs((s) => {
       const next = new Set(s);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };

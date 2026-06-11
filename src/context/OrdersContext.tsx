@@ -2,10 +2,31 @@ import { createContext, useContext, useMemo } from "react";
 import { useOrders as useOrdersQuery, useCreateOrder } from "@/hooks/useOrders";
 import { toast } from "sonner";
 
+export interface UIOrderItem {
+  name: string;
+  qty: number;
+  price: number;
+  hue: string;
+  variant: string;
+}
+
+export interface UIOrder {
+  id: string;
+  date: string;
+  status: string;
+  total: number;
+  recipient: {
+    name: string;
+  };
+  items: UIOrderItem[];
+  greeting: string;
+  channel: string;
+}
+
 interface OrdersCtx {
-  orders: any[];
-  add: (order: any) => void;
-  findOrder: (id: string) => any | undefined;
+  orders: UIOrder[];
+  add: (order: Omit<UIOrder, "id" | "date">) => Promise<void>;
+  findOrder: (id: string) => UIOrder | undefined;
 }
 
 const Ctx = createContext<OrdersCtx | null>(null);
@@ -15,7 +36,7 @@ export const OrdersProvider = ({ children }: { children: React.ReactNode }) => {
   const createOrderMutation = useCreateOrder();
 
   // Map Supabase Order structure back to what UI expects for MockOrder compatibility
-  const mappedOrders = useMemo(() => {
+  const mappedOrders = useMemo<UIOrder[]>(() => {
     return rawOrders.map((o) => ({
       id: o.id,
       date: o.created_at.slice(0, 10),
@@ -42,7 +63,7 @@ export const OrdersProvider = ({ children }: { children: React.ReactNode }) => {
     add: async (orderInput) => {
       try {
         // orderInput is in MockOrder shape, we convert it to CreateOrderInput
-        const items = orderInput.items.map((i: any) => ({
+        const items = orderInput.items.map((i) => ({
           label: i.name,
           qty: i.qty,
           price_cents: Math.round(i.price * 100),
@@ -55,7 +76,7 @@ export const OrdersProvider = ({ children }: { children: React.ReactNode }) => {
           total_cents: Math.round(orderInput.total * 100),
           items,
         });
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
         toast.error("Failed to place order in Supabase");
       }

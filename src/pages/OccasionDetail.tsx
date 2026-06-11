@@ -45,7 +45,7 @@ export const OccasionDetail = () => {
       await deleteOccasionMutation.mutateAsync({ id: o.id, contactId: o.contact_id });
       toast.success("Occasion deleted");
       navigate("/calendar");
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       toast.error("Failed to delete occasion");
     }
