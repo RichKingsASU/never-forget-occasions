@@ -13,6 +13,7 @@ import {
   useEffect,
   useState,
   useMemo,
+  useCallback,
   type ReactNode,
 } from "react";
 import type { Session, User, AuthError } from "@supabase/supabase-js";
@@ -27,12 +28,12 @@ interface AuthContextType {
   loading: boolean;
   signIn: (
     email: string,
-    password: string
+    password: string,
   ) => Promise<{ error: AuthError | null }>;
   signUp: (
     email: string,
     password: string,
-    displayName: string
+    displayName: string,
   ) => Promise<{ error: AuthError | null; needsConfirmation: boolean }>;
   signInWithGoogle: () => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
@@ -68,35 +69,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // ── Auth methods ────────────────────────────────────────────────────────────
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
-  };
-
-  const signUp = async (
-    email: string,
-    password: string,
-    displayName: string
-  ) => {
-    const { data, error } = await supabase.auth.signUp({
+  const signIn = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
-      options: {
-        // Passed into raw_user_meta_data; handle_new_user trigger reads this
-        // to populate profiles.display_name on first insert.
-        data: { display_name: displayName },
-      },
     });
+    return { error };
+  }, []);
 
-    // needsConfirmation = true when Supabase email-confirm is enabled and the
-    // user must click the link before the session activates.
-    const needsConfirmation =
-      !error && data.user !== null && data.session === null;
+  const signUp = useCallback(
+    async (email: string, password: string, displayName: string) => {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          // Passed into raw_user_meta_data; handle_new_user trigger reads this
+          // to populate profiles.display_name on first insert.
+          data: { display_name: displayName },
+        },
+      });
 
-    return { error, needsConfirmation };
-  };
+      // needsConfirmation = true when Supabase email-confirm is enabled and the
+      // user must click the link before the session activates.
+      const needsConfirmation =
+        !error && data.user !== null && data.session === null;
 
-  const signInWithGoogle = async () => {
+      return { error, needsConfirmation };
+    },
+    [],
+  );
+
+  const signInWithGoogle = useCallback(async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -104,11 +107,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       },
     });
     return { error };
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
-  };
+  }, []);
 
   // ── Value ───────────────────────────────────────────────────────────────────
 
@@ -122,8 +125,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signInWithGoogle,
       signOut,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session, loading]
+    [session, loading, signIn, signUp, signInWithGoogle, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

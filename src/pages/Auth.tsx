@@ -17,15 +17,16 @@ export const Auth = () => {
   // Form states
   const [signInEmail, setSignInEmail] = useState("");
   const [signInPassword, setSignInPassword] = useState("");
-  
+
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
   // Determine where to redirect after authentication
-  const state = location.state as { from?: { pathname?: string } } | null;
-  const from = state?.from?.pathname || "/dashboard";
+  const from =
+    (location.state as { from?: { pathname?: string } } | null)?.from
+      ?.pathname || "/dashboard";
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +52,11 @@ export const Auth = () => {
     setLoading(true);
     try {
       const displayName = `${firstName} ${lastName}`.trim();
-      const { error, needsConfirmation } = await signUp(signUpEmail, signUpPassword, displayName);
+      const { error, needsConfirmation } = await signUp(
+        signUpEmail,
+        signUpPassword,
+        displayName,
+      );
       if (error) {
         toast.error(error.message || "Failed to create account");
       } else if (needsConfirmation) {
@@ -89,7 +94,10 @@ export const Auth = () => {
       <div className="relative hidden overflow-hidden bg-gradient-to-br from-primary/20 via-background to-accent/30 p-12 lg:flex lg:flex-col lg:justify-between">
         <Link to="/" className="flex items-center gap-2.5">
           <div className="grid h-9 w-9 place-items-center rounded-2xl bg-gradient-primary shadow-soft">
-            <Heart className="h-4 w-4 text-primary-foreground" fill="currentColor" />
+            <Heart
+              className="h-4 w-4 text-primary-foreground"
+              fill="currentColor"
+            />
           </div>
           <p className="font-display text-base font-bold">
             Never Forget <span className="text-gradient">Occasions</span>
@@ -100,7 +108,8 @@ export const Auth = () => {
             Never miss a moment that matters.
           </h1>
           <p className="max-w-md text-muted-foreground">
-            Automate thoughtful greetings, schedule gifts months in advance, and let AI write the words you don't have time to.
+            Automate thoughtful greetings, schedule gifts months in advance, and
+            let AI write the words you don't have time to.
           </p>
           <div className="grid gap-3 pt-4">
             {[
@@ -108,7 +117,10 @@ export const Auth = () => {
               { i: Sparkles, t: "AI-written greetings in your voice" },
               { i: Gift, t: "Auto-shipped gifts on the right day" },
             ].map(({ i: I, t }) => (
-              <div key={t} className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card/40 p-3 backdrop-blur">
+              <div
+                key={t}
+                className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card/40 p-3 backdrop-blur"
+              >
                 <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-primary">
                   <I className="h-4 w-4 text-primary-foreground" />
                 </div>
@@ -117,7 +129,9 @@ export const Auth = () => {
             ))}
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">© 2026 Never Forget Occasions</p>
+        <p className="text-xs text-muted-foreground">
+          © 2026 Never Forget Occasions
+        </p>
         <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -left-10 h-72 w-72 rounded-full bg-accent/40 blur-3xl" />
       </div>
@@ -138,98 +152,141 @@ export const Auth = () => {
 
             <TabsContent value="sign-in" className="space-y-5 pt-6">
               <header>
-                <h2 className="font-display text-2xl font-bold">Welcome back</h2>
-                <p className="text-sm text-muted-foreground">Sign in to your NFO account</p>
+                <h2 className="font-display text-2xl font-bold">
+                  Welcome back
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Sign in to your NFO account
+                </p>
               </header>
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="you@example.com" 
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
                     value={signInEmail}
                     onChange={(e) => setSignInEmail(e.target.value)}
-                    required 
+                    required
                   />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
-                    <button type="button" className="text-xs text-muted-foreground hover:text-foreground">Forgot?</button>
+                    <button
+                      type="button"
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Forgot?
+                    </button>
                   </div>
-                  <Input 
-                    id="password" 
-                    type="password" 
+                  <Input
+                    id="password"
+                    type="password"
                     value={signInPassword}
                     onChange={(e) => setSignInPassword(e.target.value)}
-                    required 
+                    required
                   />
                 </div>
-                <Button type="submit" variant="hero" className="w-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  variant="hero"
+                  className="w-full"
+                  disabled={loading}
+                >
                   {loading ? "Signing in…" : "Sign in"}
                 </Button>
               </form>
-              <SocialAuth onGoogleClick={handleGoogleSignIn} disabled={loading} />
+              <SocialAuth
+                onGoogleClick={handleGoogleSignIn}
+                disabled={loading}
+              />
             </TabsContent>
 
             <TabsContent value="sign-up" className="space-y-5 pt-6">
               <header>
-                <h2 className="font-display text-2xl font-bold">Start celebrating</h2>
-                <p className="text-sm text-muted-foreground">7-day free trial. No card required.</p>
+                <h2 className="font-display text-2xl font-bold">
+                  Start celebrating
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  7-day free trial. No card required.
+                </p>
               </header>
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="fn">First name</Label>
-                    <Input 
-                      id="fn" 
+                    <Input
+                      id="fn"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      required 
+                      required
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="ln">Last name</Label>
-                    <Input 
-                      id="ln" 
+                    <Input
+                      id="ln"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      required 
+                      required
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="em">Work email</Label>
-                  <Input 
-                    id="em" 
-                    type="email" 
+                  <Input
+                    id="em"
+                    type="email"
                     value={signUpEmail}
                     onChange={(e) => setSignUpEmail(e.target.value)}
-                    required 
+                    required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="pw">Password</Label>
-                  <Input 
-                    id="pw" 
-                    type="password" 
-                    minLength={8} 
+                  <Input
+                    id="pw"
+                    type="password"
+                    minLength={8}
                     value={signUpPassword}
                     onChange={(e) => setSignUpPassword(e.target.value)}
-                    required 
+                    required
                   />
-                  <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+                  <p className="text-xs text-muted-foreground">
+                    At least 8 characters.
+                  </p>
                 </div>
-                <Button type="submit" variant="hero" className="w-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  variant="hero"
+                  className="w-full"
+                  disabled={loading}
+                >
                   {loading ? "Creating account…" : "Create account"}
                 </Button>
               </form>
-              <SocialAuth onGoogleClick={handleGoogleSignIn} disabled={loading} />
+              <SocialAuth
+                onGoogleClick={handleGoogleSignIn}
+                disabled={loading}
+              />
               <p className="text-center text-xs text-muted-foreground">
                 By continuing you agree to our{" "}
-                <Link to="/legal/terms" className="underline hover:text-foreground">Terms</Link> and{" "}
-                <Link to="/legal/privacy" className="underline hover:text-foreground">Privacy</Link>.
+                <Link
+                  to="/legal/terms"
+                  className="underline hover:text-foreground"
+                >
+                  Terms
+                </Link>{" "}
+                and{" "}
+                <Link
+                  to="/legal/privacy"
+                  className="underline hover:text-foreground"
+                >
+                  Privacy
+                </Link>
+                .
               </p>
             </TabsContent>
           </Tabs>
@@ -239,17 +296,36 @@ export const Auth = () => {
   );
 };
 
-const SocialAuth = ({ onGoogleClick, disabled }: { onGoogleClick: () => void; disabled?: boolean }) => (
+const SocialAuth = ({
+  onGoogleClick,
+  disabled,
+}: {
+  onGoogleClick: () => void;
+  disabled?: boolean;
+}) => (
   <div className="space-y-3">
     <div className="relative">
-      <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+      <div className="absolute inset-0 flex items-center">
+        <span className="w-full border-t border-border" />
+      </div>
       <div className="relative flex justify-center text-xs uppercase">
-        <span className="bg-background px-2 text-muted-foreground">or continue with</span>
+        <span className="bg-background px-2 text-muted-foreground">
+          or continue with
+        </span>
       </div>
     </div>
     <div className="grid grid-cols-2 gap-2">
-      <Button variant="outline" type="button" onClick={onGoogleClick} disabled={disabled}>Google</Button>
-      <Button variant="outline" type="button" disabled={disabled}>Apple</Button>
+      <Button
+        variant="outline"
+        type="button"
+        onClick={onGoogleClick}
+        disabled={disabled}
+      >
+        Google
+      </Button>
+      <Button variant="outline" type="button" disabled={disabled}>
+        Apple
+      </Button>
     </div>
   </div>
 );
