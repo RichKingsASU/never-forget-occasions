@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Package, Check, Truck, Sparkles, ChevronRight, ArrowRight, MapPin } from "lucide-react";
-import { useOrders } from "@/context/OrdersContext";
+import { Package, Check, Truck, Sparkles, ChevronRight, ArrowRight, Loader2 } from "lucide-react";
+import { useOrder as useOrderQuery } from "@/hooks/useOrders";
+import { mapOrder } from "@/context/OrdersContext";
 import { formatCurrency, type OrderStatus } from "@/lib/mock-data";
 import { toast } from "sonner";
 
@@ -20,7 +21,7 @@ const STEPS: { id: OrderStatus; label: string; icon: typeof Check }[] = [
 export const OrderDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [params] = useSearchParams();
-  const { findOrder } = useOrders();
+  const { data: rawOrder, isLoading, isError } = useOrderQuery(id);
   const isNew = params.get("new") === "1";
 
   useEffect(() => {
@@ -28,8 +29,34 @@ export const OrderDetail = () => {
   }, [isNew]);
 
   if (!id) return <Navigate to="/orders" replace />;
-  const order = findOrder(id);
-  if (!order) return <Navigate to="/orders" replace />;
+
+  if (isLoading) {
+    return (
+      <div className="dark grid min-h-dvh place-items-center bg-background text-foreground">
+        <Loader2 className="h-6 w-6 animate-spin text-corten" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="dark min-h-dvh bg-background text-foreground">
+        <Navigation currentPage="gifts" />
+        <div className="lg:ml-64">
+          <main className="grid min-h-dvh place-items-center px-4 py-6 md:px-8">
+            <Card className="glass-panel border-0 p-8 text-center">
+              <p className="font-display text-lg">We couldn't load this order</p>
+              <p className="mt-1 text-sm text-muted-foreground">Something went wrong talking to the server.</p>
+              <Button asChild className="mt-4 bg-corten text-white hover:bg-corten/90"><Link to="/orders">Back to orders</Link></Button>
+            </Card>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  if (!rawOrder) return <Navigate to="/orders" replace />;
+  const order = mapOrder(rawOrder);
 
   const stepIdx = STEPS.findIndex((s) => s.id === order.status);
 
@@ -78,7 +105,6 @@ export const OrderDetail = () => {
                   </h1>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Placed {new Date(order.date + "T00:00:00").toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"})}
-                    {order.tracking && <> · Tracking <span className="font-mono">{order.tracking}</span></>}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -138,7 +164,6 @@ export const OrderDetail = () => {
                 <Card className="glass-panel border-0 p-5">
                   <h3 className="font-display text-base font-semibold">Recipient</h3>
                   <p className="mt-2 text-sm font-medium">{order.recipient.name}</p>
-                  {order.recipient.address && <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {order.recipient.address}</p>}
                 </Card>
                 <Card className="glass-panel border-0 p-5">
                   <h3 className="font-display text-base font-semibold">Total</h3>

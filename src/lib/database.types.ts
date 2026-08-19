@@ -524,7 +524,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_order: {
+        Args: {
+          channel: string | null
+          items: Json
+          recipient_contact_id: string | null
+        }
+        Returns: {
+          channel: string | null
+          created_at: string
+          id: string
+          recipient_contact_id: string | null
+          status: string
+          total_cents: number
+          updated_at: string
+          user_id: string
+        }
+      }
     }
     Enums: {
       asset_kind: "image" | "video" | "reference"

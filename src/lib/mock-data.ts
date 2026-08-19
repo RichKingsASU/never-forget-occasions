@@ -11,6 +11,8 @@ export const daysUntil = (iso: string) => {
 
 // ─────────────────────── GIFTS ───────────────────────
 
+export type OrderStatus = "placed" | "preparing" | "shipped" | "delivered";
+
 export type GiftCategory = "Gift Cards" | "Flowers" | "Food & Treats" | "Experiences" | "Jewelry" | "Tech" | "Home" | "Wellness";
 export type DeliverySpeed = "Instant" | "Same-day" | "Next-day" | "2-3 days";
 export interface GiftVariant { id: string; label: string; priceDelta?: number; }

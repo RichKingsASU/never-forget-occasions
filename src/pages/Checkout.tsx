@@ -39,6 +39,7 @@ export const Checkout = () => {
   const { data: contacts = [], isLoading: contactsLoading } = useContacts();
 
   const [step, setStep] = useState<StepIdx>(0);
+  const [placing, setPlacing] = useState(false);
 
   // Step 1
   const [contactId, setContactId] = useState("");
@@ -108,22 +109,24 @@ export const Checkout = () => {
   const next = () => { if (validateStep()) setStep((s) => Math.min(3, s + 1) as StepIdx); };
   const prev = () => setStep((s) => Math.max(0, s - 1) as StepIdx);
 
-  const placeOrder = () => {
-    if (!validateStep()) return;
-    const order = {
-      id: `NFO-26-${Math.floor(1000 + Math.random() * 8999)}`,
-      date: new Date().toISOString().slice(0,10),
-      status: "placed",
-      items: items.map((l) => ({ giftId: l.giftId, name: l.name, variant: l.variant, qty: l.qty, price: l.unitPrice, hue: l.hue })),
-      recipient: { name: recipientLabel, address: useNew ? `${newRecipient.line1}, ${newRecipient.city}` : undefined },
-      greeting: greetingPreview ?? undefined,
-      channel: attachGreeting ? sendChannel : undefined,
-      total,
-    };
-    add(order);
-    clear();
-    toast.success("Order placed!");
-    navigate(`/orders/${order.id}?new=1`);
+  const placeOrder = async () => {
+    if (!validateStep() || placing) return;
+    setPlacing(true);
+    try {
+      const order = await add({
+        recipientContactId: useNew ? null : contactId || null,
+        channel: attachGreeting ? sendChannel : null,
+        items: items.map((l) => ({ giftId: l.giftId, name: l.name, variant: l.variant, qty: l.qty })),
+      });
+      clear();
+      toast.success("Order placed!");
+      navigate(`/orders/${order.id}?new=1`);
+    } catch (err) {
+      console.error(err);
+      toast.error("We couldn't place your order. Please try again.");
+    } finally {
+      setPlacing(false);
+    }
   };
 
   // Card formatting helpers
@@ -392,8 +395,9 @@ export const Checkout = () => {
                       Continue <ChevronRight className="h-4 w-4" />
                     </Button>
                   ) : (
-                    <Button onClick={placeOrder} className="bg-corten text-white hover:bg-corten/90">
-                      <Lock className="h-4 w-4" /> Place order · {formatCurrency(total)}
+                    <Button onClick={placeOrder} disabled={placing} className="bg-corten text-white hover:bg-corten/90">
+                      {placing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+                      {placing ? "Placing order…" : `Place order · ${formatCurrency(total)}`}
                     </Button>
                   )}
                 </div>
