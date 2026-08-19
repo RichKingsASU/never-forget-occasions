@@ -308,11 +308,11 @@ export const Settings = () => {
                   <p className="mt-1 text-sm text-muted-foreground">Sync occasions and contacts from the tools you already use.</p>
                   <div className="mt-5 grid gap-3 md:grid-cols-2">
                     {[
-                      { n: "Google Calendar", d: "Two-way sync for occasions and reminders.", connected: true },
-                      { n: "Apple Contacts",  d: "Import birthdays from your address book.",   connected: true },
+                      { n: "Google Calendar", d: "Two-way sync for occasions and reminders.", connected: false },
+                      { n: "Apple Contacts",  d: "Import birthdays from your address book.",   connected: false },
                       { n: "Slack",           d: "Dispatch greetings to channels or DMs.",     connected: false },
                       { n: "WhatsApp",        d: "Send greetings as rich media messages.",     connected: false },
-                      { n: "Stripe",          d: "Pay for gifts and subscriptions.",           connected: true },
+                      { n: "Stripe",          d: "Pay for gifts and subscriptions.",           connected: false },
                       { n: "Shopify",         d: "Connect your own catalog as gifts.",         connected: false },
                     ].map((i) => (
                       <div key={i.n} className="flex items-start justify-between rounded-lg border border-border/60 bg-background/40 p-4">
