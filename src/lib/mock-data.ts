@@ -56,13 +56,6 @@ export const findGift = (slug: string) => mockGifts.find((g) => g.slug === slug)
 export const formatCurrency = (n: number) =>
   new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
-export const estimateDelivery = (speed: DeliverySpeed) => {
-  const map: Record<DeliverySpeed, number> = { Instant: 0, "Same-day": 0, "Next-day": 1, "2-3 days": 3 };
-  const d = new Date();
-  d.setDate(d.getDate() + map[speed]);
-  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-};
-
 // ─────────────────────── REVIEWS ───────────────────────
 
 export interface MockReview { author: string; rating: number; date: string; body: string; }

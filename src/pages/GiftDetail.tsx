@@ -14,10 +14,11 @@ import {
 import {
   Star, Plus, Minus, ShoppingBag, Zap, Share2, Truck, Shield, RotateCcw, ChevronRight, Clock,
 } from "lucide-react";
-import { findGift, mockGifts, mockReviews, formatCurrency, estimateDelivery } from "@/lib/mock-data";
+import { findGift, mockGifts, mockReviews, formatCurrency } from "@/lib/mock-data";
 import { motion } from "framer-motion";
 import { useCart } from "@/context/CartContext";
 import { CartSheet } from "@/components/cart/CartSheet";
+import { CatalogPreviewBanner } from "@/components/gifts/CatalogPreviewBanner";
 import { toast } from "sonner";
 
 export const GiftDetail = () => {
@@ -75,6 +76,8 @@ export const GiftDetail = () => {
               <CartSheet />
             </nav>
 
+            <CatalogPreviewBanner />
+
             <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">
               {/* Gallery */}
               <div className="space-y-3">
@@ -123,7 +126,7 @@ export const GiftDetail = () => {
 
                 <div className="mt-5 flex items-baseline gap-3">
                   <span className="font-display text-4xl font-semibold tabular-nums">{formatCurrency(unitPrice)}</span>
-                  <span className="text-xs text-muted-foreground">Arrives by {estimateDelivery(gift.deliveryTime)}</span>
+                  <span className="text-xs text-muted-foreground">Target delivery: {gift.deliveryTime.toLowerCase()}</span>
                 </div>
 
                 {gift.variants && (
@@ -172,7 +175,7 @@ export const GiftDetail = () => {
                 <div className="mt-5 grid grid-cols-3 gap-2 text-[11px] text-muted-foreground">
                   <div className="flex items-start gap-2 rounded-lg border border-border/60 p-3"><Truck className="h-4 w-4 text-corten" /> <span><b className="text-foreground">Free shipping</b><br/>orders over $50</span></div>
                   <div className="flex items-start gap-2 rounded-lg border border-border/60 p-3"><RotateCcw className="h-4 w-4 text-corten" /> <span><b className="text-foreground">30-day</b><br/>easy returns</span></div>
-                  <div className="flex items-start gap-2 rounded-lg border border-border/60 p-3"><Shield className="h-4 w-4 text-corten" /> <span><b className="text-foreground">Guaranteed</b><br/>delivery</span></div>
+                  <div className="flex items-start gap-2 rounded-lg border border-border/60 p-3"><Shield className="h-4 w-4 text-corten" /> <span><b className="text-foreground">Fulfillment</b><br/>launching soon</span></div>
                 </div>
               </div>
             </div>
@@ -218,9 +221,8 @@ export const GiftDetail = () => {
 
               <TabsContent value="shipping">
                 <Card className="glass-panel border-0 p-6 space-y-3 text-sm text-muted-foreground">
-                  <p><b className="text-foreground">Delivery:</b> {gift.deliveryTime}. Estimated arrival {estimateDelivery(gift.deliveryTime)}.</p>
-                  <p><b className="text-foreground">Returns:</b> 30 days, no questions asked. Digital gifts can be reissued to a different recipient within 7 days.</p>
-                  <p><b className="text-foreground">International:</b> Available in 38 countries through our partner network.</p>
+                  <p><b className="text-foreground">Delivery:</b> Target speed is {gift.deliveryTime.toLowerCase()} once fulfillment launches — this catalog is a preview, so nothing ships from an order today.</p>
+                  <p><b className="text-foreground">Returns:</b> 30 days, no questions asked, once fulfillment is live. Digital gifts can be reissued to a different recipient within 7 days.</p>
                 </Card>
               </TabsContent>
 

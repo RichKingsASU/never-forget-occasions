@@ -15,6 +15,7 @@ import { useCart } from "@/context/CartContext";
 import { motion } from "framer-motion";
 import { TiltCard } from "@/components/effects/TiltCard";
 import { CartSheet } from "@/components/cart/CartSheet";
+import { CatalogPreviewBanner } from "@/components/gifts/CatalogPreviewBanner";
 import { toast } from "sonner";
 
 const CATEGORIES: ("All" | GiftCategory)[] = ["All", "Gift Cards", "Flowers", "Food & Treats", "Experiences", "Home", "Wellness", "Tech", "Jewelry"];
@@ -72,7 +73,7 @@ export const GiftCatalog = () => {
                 </p>
                 <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight">Curated for every occasion</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {filtered.length} gift{filtered.length === 1 ? "" : "s"} · vetted creators · global delivery
+                  {filtered.length} gift{filtered.length === 1 ? "" : "s"} · vetted creators
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -86,6 +87,8 @@ export const GiftCatalog = () => {
                 />
               </div>
             </header>
+
+            <CatalogPreviewBanner />
 
             <div className="grid gap-4 xl:grid-cols-[260px_1fr]">
               {/* Filter rail */}
