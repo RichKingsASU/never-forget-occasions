@@ -17,6 +17,7 @@ import {
 import { useCart } from "@/context/CartContext";
 import { useOrders } from "@/context/OrdersContext";
 import { formatCurrency } from "@/lib/mock-data";
+import { CatalogPreviewBanner } from "@/components/gifts/CatalogPreviewBanner";
 import { toast } from "sonner";
 import { useContacts } from "@/hooks/useContacts";
 
@@ -24,9 +25,9 @@ const STEPS = ["Recipient", "Greeting", "Payment", "Review"] as const;
 type StepIdx = 0 | 1 | 2 | 3;
 
 const SHIPPING: { id: "std"|"exp"|"sd"; label: string; desc: string; cost: number }[] = [
-  { id: "std", label: "Standard", desc: "Arrives in 3–5 days",          cost: 0  },
-  { id: "exp", label: "Express",  desc: "Arrives in 1–2 business days", cost: 12 },
-  { id: "sd",  label: "Same-day", desc: "Today, in select metros",      cost: 25 },
+  { id: "std", label: "Standard", desc: "Target: 3–5 days once fulfillment launches",          cost: 0  },
+  { id: "exp", label: "Express",  desc: "Target: 1–2 business days once fulfillment launches", cost: 12 },
+  { id: "sd",  label: "Same-day", desc: "Target: same day, select metros, once fulfillment launches", cost: 25 },
 ];
 
 const TONES = ["Heartfelt", "Funny", "Romantic", "Professional", "Family-friendly"];
@@ -39,6 +40,7 @@ export const Checkout = () => {
   const { data: contacts = [], isLoading: contactsLoading } = useContacts();
 
   const [step, setStep] = useState<StepIdx>(0);
+  const [placing, setPlacing] = useState(false);
 
   // Step 1
   const [contactId, setContactId] = useState("");
@@ -108,22 +110,24 @@ export const Checkout = () => {
   const next = () => { if (validateStep()) setStep((s) => Math.min(3, s + 1) as StepIdx); };
   const prev = () => setStep((s) => Math.max(0, s - 1) as StepIdx);
 
-  const placeOrder = () => {
-    if (!validateStep()) return;
-    const order = {
-      id: `NFO-26-${Math.floor(1000 + Math.random() * 8999)}`,
-      date: new Date().toISOString().slice(0,10),
-      status: "placed",
-      items: items.map((l) => ({ giftId: l.giftId, name: l.name, variant: l.variant, qty: l.qty, price: l.unitPrice, hue: l.hue })),
-      recipient: { name: recipientLabel, address: useNew ? `${newRecipient.line1}, ${newRecipient.city}` : undefined },
-      greeting: greetingPreview ?? undefined,
-      channel: attachGreeting ? sendChannel : undefined,
-      total,
-    };
-    add(order);
-    clear();
-    toast.success("Order placed!");
-    navigate(`/orders/${order.id}?new=1`);
+  const placeOrder = async () => {
+    if (!validateStep() || placing) return;
+    setPlacing(true);
+    try {
+      const order = await add({
+        recipientContactId: useNew ? null : contactId || null,
+        channel: attachGreeting ? sendChannel : null,
+        items: items.map((l) => ({ giftId: l.giftId, name: l.name, variant: l.variant, qty: l.qty })),
+      });
+      clear();
+      toast.success("Order placed!");
+      navigate(`/orders/${order.id}?new=1`);
+    } catch (err) {
+      console.error(err);
+      toast.error("We couldn't place your order. Please try again.");
+    } finally {
+      setPlacing(false);
+    }
   };
 
   // Card formatting helpers
@@ -228,6 +232,7 @@ export const Checkout = () => {
                     <Separator className="bg-border/50" />
                     <div>
                       <h3 className="font-display text-base font-semibold">Delivery speed</h3>
+                      <CatalogPreviewBanner className="mt-2" />
                       <RadioGroup value={shipId} onValueChange={(v)=>setShipId(v as typeof shipId)} className="mt-3 grid gap-2 md:grid-cols-3">
                         {SHIPPING.map((s) => (
                           <label key={s.id} className={`flex flex-col gap-1 rounded-lg border p-3 cursor-pointer transition ${shipId === s.id ? "border-corten/60 bg-corten/5" : "border-border/60 hover:border-border"}`}>
@@ -392,8 +397,9 @@ export const Checkout = () => {
                       Continue <ChevronRight className="h-4 w-4" />
                     </Button>
                   ) : (
-                    <Button onClick={placeOrder} className="bg-corten text-white hover:bg-corten/90">
-                      <Lock className="h-4 w-4" /> Place order · {formatCurrency(total)}
+                    <Button onClick={placeOrder} disabled={placing} className="bg-corten text-white hover:bg-corten/90">
+                      {placing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+                      {placing ? "Placing order…" : `Place order · ${formatCurrency(total)}`}
                     </Button>
                   )}
                 </div>
@@ -424,7 +430,7 @@ export const Checkout = () => {
                   <Separator className="my-2 bg-border/50" />
                   <div className="flex items-baseline justify-between"><dt className="font-display text-base font-semibold">Total</dt><dd className="font-display text-xl font-semibold tabular-nums">{formatCurrency(total)}</dd></div>
                 </dl>
-                <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground"><Truck className="h-3 w-3" /> Arrives {shipping.label.toLowerCase()}</p>
+                <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground"><Truck className="h-3 w-3" /> {shipping.label} target — fulfillment launching soon</p>
               </Card>
             </div>
           </div>

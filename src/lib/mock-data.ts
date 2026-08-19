@@ -11,6 +11,8 @@ export const daysUntil = (iso: string) => {
 
 // ─────────────────────── GIFTS ───────────────────────
 
+export type OrderStatus = "placed" | "preparing" | "shipped" | "delivered";
+
 export type GiftCategory = "Gift Cards" | "Flowers" | "Food & Treats" | "Experiences" | "Jewelry" | "Tech" | "Home" | "Wellness";
 export type DeliverySpeed = "Instant" | "Same-day" | "Next-day" | "2-3 days";
 export interface GiftVariant { id: string; label: string; priceDelta?: number; }
@@ -53,13 +55,6 @@ export const findGift = (slug: string) => mockGifts.find((g) => g.slug === slug)
 
 export const formatCurrency = (n: number) =>
   new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
-
-export const estimateDelivery = (speed: DeliverySpeed) => {
-  const map: Record<DeliverySpeed, number> = { Instant: 0, "Same-day": 0, "Next-day": 1, "2-3 days": 3 };
-  const d = new Date();
-  d.setDate(d.getDate() + map[speed]);
-  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-};
 
 // ─────────────────────── REVIEWS ───────────────────────
 

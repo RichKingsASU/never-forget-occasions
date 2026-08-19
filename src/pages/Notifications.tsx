@@ -1,98 +1,130 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Bell, Gift, Calendar, Sparkles, Check, Mail } from "lucide-react";
+import { Bell, Gift, Calendar, Sparkles, Loader2, UserPlus } from "lucide-react";
+import { useContacts } from "@/hooks/useContacts";
+import { useOccasions } from "@/hooks/useOccasions";
 
-interface Notification {
+interface ActivityEvent {
   id: string;
-  type: "occasion" | "gift" | "ai" | "system";
+  type: "contact" | "occasion";
   title: string;
   body: string;
-  time: string;
-  read: boolean;
+  at: string;
 }
 
-const seed: Notification[] = [
-  { id: "n1", type: "occasion", title: "Sarah's birthday in 5 days", body: "Greeting is drafted. Review before it sends Jun 15.", time: "2h ago", read: false },
-  { id: "n2", type: "gift", title: "Order delivered", body: "Rose bouquet arrived at Mom's door.", time: "5h ago", read: false },
-  { id: "n3", type: "ai", title: "3 new draft greetings", body: "AI prepared messages for upcoming occasions.", time: "1d ago", read: false },
-  { id: "n4", type: "system", title: "Welcome to NFO", body: "Finish onboarding to unlock automations.", time: "2d ago", read: true },
-  { id: "n5", type: "occasion", title: "Anniversary added", body: "John & Lisa - June 22.", time: "3d ago", read: true },
-  { id: "n6", type: "gift", title: "Card declined", body: "Update your payment method to ship Devon's gift.", time: "4d ago", read: true },
-  { id: "n7", type: "ai", title: "Tone preference updated", body: "AI greetings will now default to Warm.", time: "1w ago", read: true },
-  { id: "n8", type: "system", title: "New feature: Video Mail", body: "Send a recorded video as your greeting.", time: "1w ago", read: true },
+const timeAgo = (iso: string) => {
+  const ms = Date.now() - new Date(iso).getTime();
+  const min = Math.round(ms / 60000);
+  if (min < 1) return "just now";
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.round(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.round(hr / 24);
+  if (day < 7) return `${day}d ago`;
+  const wk = Math.round(day / 7);
+  if (wk < 5) return `${wk}w ago`;
+  return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+};
+
+const COMING_SOON = [
+  { key: "gift", label: "Gift delivery updates", icon: Gift },
+  { key: "ai", label: "AI draft alerts", icon: Sparkles },
 ];
 
-const icon = (t: Notification["type"]) => ({ occasion: Calendar, gift: Gift, ai: Sparkles, system: Mail }[t]);
-
 export const NotificationsPage = () => {
-  const [items, setItems] = useState(seed);
-  const [filter, setFilter] = useState<"all" | "unread">("all");
-  const filtered = items.filter((n) => (filter === "unread" ? !n.read : true));
-  const unread = items.filter((n) => !n.read).length;
+  const { data: contacts, isLoading: contactsLoading, isError: contactsError } = useContacts();
+  const { data: occasions, isLoading: occasionsLoading, isError: occasionsError } = useOccasions();
+
+  const isLoading = contactsLoading || occasionsLoading;
+  const isError = contactsError || occasionsError;
+
+  const events = useMemo<ActivityEvent[]>(() => {
+    if (!contacts || !occasions) return [];
+    const contactNameById = new Map(contacts.map((c) => [c.id, c.name]));
+
+    const contactEvents: ActivityEvent[] = contacts.map((c) => ({
+      id: `contact-${c.id}`,
+      type: "contact",
+      title: `Added ${c.name}`,
+      body: `New contact${c.relationship ? ` · ${c.relationship}` : ""}`,
+      at: c.created_at,
+    }));
+
+    const occasionEvents: ActivityEvent[] = occasions.map((o) => ({
+      id: `occasion-${o.id}`,
+      type: "occasion",
+      title: `${o.type} added`,
+      body: `For ${contactNameById.get(o.contact_id) ?? "a contact"} · ${new Date(o.date + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" })}`,
+      at: o.created_at,
+    }));
+
+    return [...contactEvents, ...occasionEvents].sort(
+      (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
+    );
+  }, [contacts, occasions]);
+
+  const icon = (t: ActivityEvent["type"]) => (t === "contact" ? UserPlus : Calendar);
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       <main className="lg:ml-64">
         <div className="mx-auto max-w-3xl p-6 md:p-10">
-          <header className="mb-6 flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="font-display text-3xl font-bold">Notifications</h1>
-                {unread > 0 && <Badge className="bg-primary text-primary-foreground">{unread} new</Badge>}
-              </div>
-              <p className="text-sm text-muted-foreground">Stay on top of every moment.</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => setItems(items.map((i) => ({ ...i, read: true })))}>
-              <Check className="h-4 w-4" /> Mark all read
-            </Button>
+          <header className="mb-6">
+            <h1 className="font-display text-3xl font-bold">Notifications</h1>
+            <p className="text-sm text-muted-foreground">Recent activity on your account.</p>
           </header>
 
-          <div className="mb-4 flex gap-2">
-            {(["all", "unread"] as const).map((f) => (
-              <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} onClick={() => setFilter(f)}>
-                {f === "all" ? "All" : "Unread"}
-              </Button>
-            ))}
-          </div>
-
-          <div className="space-y-2">
-            {filtered.length === 0 && (
-              <Card className="grid place-items-center gap-2 p-12 text-center">
-                <Bell className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">You're all caught up.</p>
-              </Card>
-            )}
-            {filtered.map((n) => {
-              const Icon = icon(n.type);
-              return (
-                <Card
-                  key={n.id}
-                  className={`flex items-start gap-4 p-4 transition hover:shadow-soft ${!n.read ? "border-primary/40 bg-primary/[0.03]" : ""}`}
-                >
-                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent">
-                    <Icon className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-medium">{n.title}</p>
-                      <span className="text-xs text-muted-foreground">{n.time}</span>
+          {isLoading ? (
+            <Card className="grid place-items-center gap-2 p-12 text-center">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Loading activity…</p>
+            </Card>
+          ) : isError ? (
+            <Card className="grid place-items-center gap-2 p-12 text-center">
+              <Bell className="h-8 w-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Couldn't load your activity. Try refreshing.</p>
+            </Card>
+          ) : events.length === 0 ? (
+            <Card className="grid place-items-center gap-2 p-12 text-center">
+              <Bell className="h-8 w-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">No activity yet — add a contact or occasion to get started.</p>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {events.map((n) => {
+                const Icon = icon(n.type);
+                return (
+                  <Card key={n.id} className="flex items-start gap-4 p-4">
+                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-accent">
+                      <Icon className="h-4 w-4 text-primary" />
                     </div>
-                    <p className="mt-0.5 text-sm text-muted-foreground">{n.body}</p>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-medium">{n.title}</p>
+                        <span className="text-xs text-muted-foreground">{timeAgo(n.at)}</span>
+                      </div>
+                      <p className="mt-0.5 text-sm text-muted-foreground">{n.body}</p>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="mt-8">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Coming soon</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {COMING_SOON.map(({ key, label, icon: Icon }) => (
+                <Card key={key} className="flex items-center gap-3 border-dashed p-4 opacity-60">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-muted">
+                    <Icon className="h-4 w-4 text-muted-foreground" />
                   </div>
-                  {!n.read && (
-                    <button
-                      onClick={() => setItems(items.map((i) => (i.id === n.id ? { ...i, read: true } : i)))}
-                      className="h-2 w-2 rounded-full bg-primary"
-                      aria-label="Mark read"
-                    />
-                  )}
+                  <p className="text-sm text-muted-foreground">{label}</p>
                 </Card>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </div>
       </main>

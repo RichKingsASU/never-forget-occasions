@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo } from "react";
 import { useOrders as useOrdersQuery, useCreateOrder } from "@/hooks/useOrders";
-import { toast } from "sonner";
+import type { OrderWithItems } from "@/lib/api/orders";
 
 export interface UIOrderItem {
   name: string;
@@ -23,63 +23,56 @@ export interface UIOrder {
   channel: string;
 }
 
+export interface CreateOrderInput {
+  recipientContactId: string | null;
+  channel: string | null;
+  items: { giftId: string; name: string; variant?: string; qty: number }[];
+}
+
 interface OrdersCtx {
   orders: UIOrder[];
-  add: (order: Omit<UIOrder, "id" | "date">) => Promise<void>;
+  add: (order: CreateOrderInput) => Promise<UIOrder>;
   findOrder: (id: string) => UIOrder | undefined;
 }
 
 const Ctx = createContext<OrdersCtx | null>(null);
+
+export const mapOrder = (o: OrderWithItems): UIOrder => ({
+  id: o.id,
+  date: o.created_at.slice(0, 10),
+  status: o.status,
+  total: o.total_cents / 100,
+  recipient: {
+    name: o.recipient_contact_id ? "Recipient" : "Unknown", // Can be resolved or mocked
+  },
+  // Since actual products/gifts are still mockGifts, we mock the single item details on the fly
+  items: (o.order_items || []).map((item) => ({
+    name: item.label,
+    qty: item.qty,
+    price: item.price_cents / 100,
+    hue: "from-primary to-secondary",
+    variant: "",
+  })),
+  greeting: "",
+  channel: o.channel || "Email",
+});
 
 export const OrdersProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: rawOrders = [] } = useOrdersQuery();
   const createOrderMutation = useCreateOrder();
 
   // Map Supabase Order structure back to what UI expects for MockOrder compatibility
-  const mappedOrders = useMemo<UIOrder[]>(() => {
-    return rawOrders.map((o) => ({
-      id: o.id,
-      date: o.created_at.slice(0, 10),
-      status: o.status,
-      total: o.total_cents / 100,
-      recipient: {
-        name: o.recipient_contact_id ? "Recipient" : "Unknown", // Can be resolved or mocked
-      },
-      // Since actual products/gifts are still mockGifts, we mock the single item details on the fly
-      items: (o.order_items || []).map((item) => ({
-        name: item.label,
-        qty: item.qty,
-        price: item.price_cents / 100,
-        hue: "from-primary to-secondary",
-        variant: "",
-      })),
-      greeting: "",
-      channel: o.channel || "Email",
-    }));
-  }, [rawOrders]);
+  const mappedOrders = useMemo<UIOrder[]>(() => rawOrders.map(mapOrder), [rawOrders]);
 
   const value = useMemo<OrdersCtx>(() => ({
     orders: mappedOrders,
     add: async (orderInput) => {
-      try {
-        // orderInput is in MockOrder shape, we convert it to CreateOrderInput
-        const items = orderInput.items.map((i) => ({
-          label: i.name,
-          qty: i.qty,
-          price_cents: Math.round(i.price * 100),
-          asset_id: null,
-        }));
-
-        await createOrderMutation.mutateAsync({
-          recipient_contact_id: null, // Defer to null if no contact_id matched
-          channel: orderInput.channel || null,
-          total_cents: Math.round(orderInput.total * 100),
-          items,
-        });
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to place order in Supabase");
-      }
+      const order = await createOrderMutation.mutateAsync({
+        recipient_contact_id: orderInput.recipientContactId,
+        channel: orderInput.channel,
+        items: orderInput.items,
+      });
+      return mapOrder(order);
     },
     findOrder: (id) => mappedOrders.find((o) => o.id === id),
   }), [mappedOrders, createOrderMutation]);
